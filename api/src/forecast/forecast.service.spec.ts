@@ -4,6 +4,8 @@ import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { MovementType } from "@prisma/client";
 import { ForecastService } from "./forecast.service.js";
+import { ReorderFacade } from "./reorder.facade.js";
+import { PurchaseOrdersService } from "../purchase-orders/purchase-orders.service.js";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { NaiveStrategy } from "./strategies/naive.strategy.js";
 import { MovingAverageStrategy } from "./strategies/moving-average.strategy.js";
@@ -248,6 +250,87 @@ describe("Forecast & Demand Strategies", () => {
 
         // ceil(1 * 7 + 5 - 100) = -88 => clamped to 0
         expect(result.suggestedReorderQuantity).toBe(0);
+      });
+    });
+  });
+
+  describe("ReorderFacade", () => {
+    let facade: ReorderFacade;
+    let mockForecastService: any;
+    let mockPurchaseOrdersService: any;
+
+    beforeEach(() => {
+      mockForecastService = {
+        getForecast: jest.fn(),
+      };
+      mockPurchaseOrdersService = {
+        createDraft: jest.fn(),
+      };
+      facade = new ReorderFacade(
+        mockForecastService,
+        mockPurchaseOrdersService,
+      );
+    });
+
+    it("throws BadRequestException if suggested reorder quantity is zero or negative", async () => {
+      mockForecastService.getForecast.mockResolvedValue({
+        product: { id: "p-1", name: "Whole Milk" },
+        currentStock: 50,
+        suggestedReorderQuantity: 0,
+      });
+
+      await expect(
+        facade.createPOFromSuggestion("p-1", "user-1"),
+      ).rejects.toThrow(BadRequestException);
+      expect(mockPurchaseOrdersService.createDraft).not.toHaveBeenCalled();
+    });
+
+    it("successfully creates a draft purchase order when reorder quantity is positive", async () => {
+      const mockForecast = {
+        product: {
+          id: "p-1",
+          name: "Whole Milk",
+          unitPrice: 3.5,
+          supplier: {
+            id: "sup-99",
+            name: "Dairy Best",
+          },
+        },
+        currentStock: 2,
+        suggestedReorderQuantity: 25,
+      };
+
+      const mockPO = {
+        id: "po-101",
+        poNumber: "PO-20261016-0001",
+        status: "DRAFT",
+        supplierId: "sup-99",
+        totalAmount: 87.5,
+      };
+
+      mockForecastService.getForecast.mockResolvedValue(mockForecast);
+      mockPurchaseOrdersService.createDraft.mockResolvedValue(mockPO);
+
+      const result = await facade.createPOFromSuggestion("p-1", "user-1");
+
+      expect(mockForecastService.getForecast).toHaveBeenCalledWith("p-1", undefined);
+      expect(mockPurchaseOrdersService.createDraft).toHaveBeenCalledWith(
+        {
+          supplierId: "sup-99",
+          items: [
+            {
+              productId: "p-1",
+              quantity: 25,
+              unitCost: 3.5,
+            },
+          ],
+        },
+        "user-1",
+      );
+
+      expect(result).toEqual({
+        forecast: mockForecast,
+        purchaseOrder: mockPO,
       });
     });
   });
