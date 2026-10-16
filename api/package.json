@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "prisma:generate": "prisma generate --schema prisma/schema",
     "prisma:migrate": "prisma migrate dev --schema prisma/schema",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "evaluate:forecast": "tsx src/forecast/scripts/evaluate.ts"
   },
   "prisma": {
     "schema": "prisma/schema"
