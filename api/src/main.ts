@@ -11,6 +11,7 @@ dotenv.config({ path: envPath });
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import cookieParser from "cookie-parser";
 import { AppModule } from "./app.module.js";
 
 async function bootstrap() {
@@ -23,12 +24,14 @@ async function bootstrap() {
     "http://localhost:3000",
   );
 
+  app.use(cookieParser());
+
   app.enableCors({
     origin: corsOrigin,
     credentials: true,
   });
 
-  app.setGlobalPrefix("api");
+  app.setGlobalPrefix("api/v1");
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -39,7 +42,8 @@ async function bootstrap() {
   );
 
   await app.listen(port);
-  console.log(`ShelfSense API running on: http://localhost:${port}/api`);
+  console.log(`ShelfSense API running on: http://localhost:${port}`);
+  console.log(`Endpoints available under: http://localhost:${port}/api/v1`);
 }
 
 bootstrap();

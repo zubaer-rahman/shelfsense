@@ -22,7 +22,7 @@ npm run dev
 
 ### Backend Scripts
 ```bash
-npm --workspace=api run start:dev     # Start NestJS API dev server (http://localhost:4000/api)
+npm --workspace=api run start:dev     # Start NestJS API dev server (http://localhost:4000)
 npm --workspace=api run prisma:migrate # Run Prisma database migrations
 npm --workspace=api run seed          # Seed demo users, products and 90 days synthetic sales
 ```
