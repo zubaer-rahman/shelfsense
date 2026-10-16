@@ -11,7 +11,8 @@ export interface ForecastStrategy {
   /**
    * Predicts expected daily demand based on a chronological series of daily sales figures.
    * @param series Array of non-negative daily sales figures ordered from oldest to newest.
+   * @param window Optional window size of recent days to consider (defaults to entire series).
    * @returns Non-negative expected daily demand rate.
    */
-  calculateExpectedDailyDemand(series: number[]): number;
+  calculateExpectedDailyDemand(series: number[], window?: number): number;
 }

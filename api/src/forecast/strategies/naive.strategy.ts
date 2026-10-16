@@ -6,7 +6,7 @@ import { ForecastStrategy } from "./forecast-strategy.interface.js";
 export class NaiveStrategy implements ForecastStrategy {
   readonly name = "naive";
 
-  calculateExpectedDailyDemand(series: number[]): number {
+  calculateExpectedDailyDemand(series: number[], _window?: number): number {
     if (!series || series.length === 0) {
       return 0;
     }
