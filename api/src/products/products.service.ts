@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service.js";
 import { CreateProductDto } from "./dto/create-product.dto.js";
@@ -11,6 +16,9 @@ export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateProductDto) {
+    await this.validateSupplier(dto.supplierId);
+    await this.validateSkuUniqueness(dto.sku);
+
     return this.prisma.product.create({
       data: {
         name: dto.name,
@@ -107,10 +115,19 @@ export class ProductsService {
   async update(id: string, dto: UpdateProductDto) {
     await this.findById(id);
 
+    if (dto.supplierId !== undefined) {
+      await this.validateSupplier(dto.supplierId);
+    }
+
+    if (dto.sku !== undefined) {
+      await this.validateSkuUniqueness(dto.sku, id);
+    }
+
     return this.prisma.product.update({
       where: { id },
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.sku !== undefined && { sku: dto.sku }),
         ...(dto.category !== undefined && { category: dto.category }),
         ...(dto.unitPrice !== undefined && { unitPrice: new Prisma.Decimal(dto.unitPrice) }),
         ...(dto.reorderLevel !== undefined && { reorderLevel: dto.reorderLevel }),
@@ -133,5 +150,27 @@ export class ProductsService {
       where: { id },
       data: { isActive: false },
     });
+  }
+
+  private async validateSupplier(supplierId: string) {
+    const supplier = await this.prisma.supplier.findUnique({
+      where: { id: supplierId },
+      select: { id: true, isActive: true },
+    });
+
+    if (!supplier || !supplier.isActive) {
+      throw new BadRequestException("Supplier does not exist or is inactive");
+    }
+  }
+
+  private async validateSkuUniqueness(sku: string, excludeProductId?: string) {
+    const existing = await this.prisma.product.findUnique({
+      where: { sku },
+      select: { id: true },
+    });
+
+    if (existing && existing.id !== excludeProductId) {
+      throw new ConflictException(`Product with SKU '${sku}' already exists`);
+    }
   }
 }

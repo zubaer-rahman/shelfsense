@@ -1,4 +1,4 @@
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import {
   IsBoolean,
   IsDateString,
@@ -17,6 +17,12 @@ export class UpdateProductDto {
   @IsString()
   @MaxLength(150)
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  @Transform(({ value }) => (typeof value === "string" ? value.toUpperCase().trim() : value))
+  sku?: string;
 
   @IsOptional()
   @IsString()
