@@ -1,0 +1,20 @@
+model Product {
+  id             String              @id @default(uuid())
+  name           String
+  sku            String              @unique
+  category       String
+  unitPrice      Decimal             @db.Decimal(10, 2)
+  quantity       Int                 @default(0)
+  reorderLevel   Int                 @default(0)
+  expiryDate     DateTime?           @db.Date
+  isActive       Boolean             @default(true)
+
+  supplierId     String
+  supplier       Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+
+  movements      StockMovement[]
+  poItems        PurchaseOrderItem[]
+
+  @@index([expiryDate])
+  @@index([supplierId])
+}

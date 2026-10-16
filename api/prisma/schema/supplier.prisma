@@ -1,0 +1,11 @@
+model Supplier {
+  id             String          @id @default(uuid())
+  name           String
+  phone          String?
+  email          String?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+}

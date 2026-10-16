@@ -1,0 +1,17 @@
+enum Role {
+  OWNER
+  STAFF
+}
+
+enum MovementType {
+  SALE
+  STOCK_IN
+  ADJUSTMENT
+}
+
+enum POStatus {
+  DRAFT
+  ORDERED
+  RECEIVED
+  CANCELLED
+}

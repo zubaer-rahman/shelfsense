@@ -1,0 +1,20 @@
+model StockMovement {
+  id          String       @id @default(uuid())
+  productId   String
+  userId      String
+  type        MovementType
+
+  // Signed quantity rule: The API accepts an absolute positive number. 
+  // The service layer enforces the sign (- for SALE/loss, + for STOCK_IN/gain).
+  // For ADJUSTMENT, the API explicitly requires a 'direction' payload to determine the sign.
+  quantity    Int
+
+  note        String?
+  createdAt   DateTime     @default(now())
+
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([productId, createdAt])
+  @@index([productId, type, createdAt])
+}
