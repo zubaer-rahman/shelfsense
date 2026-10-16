@@ -5,11 +5,13 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { MovementType, Prisma } from "@prisma/client";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { PrismaService } from "../prisma/prisma.service.js";
 import {
   AdjustmentDirection,
   CreateStockMovementDto,
 } from "./dto/create-stock-movement.dto.js";
+import { StockChangedEvent } from "./events/stock-changed.event.js";
 
 // Strategy function defining how sign rule is calculated per movement type.
 type MovementSignStrategy = (
@@ -32,7 +34,10 @@ const MOVEMENT_STRATEGIES: Record<MovementType, MovementSignStrategy> = {
 // Manages inventory stock levels through transactional guarded updates and movement tracking.
 @Injectable()
 export class StockService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   // Resolves signed integer quantity based on MovementType strategy.
   calculateSignedQuantity(
@@ -153,6 +158,22 @@ export class StockService {
       return execute(txClient);
     }
 
-    return this.prisma.$transaction(execute);
+    const result = await this.prisma.$transaction(execute);
+
+    // Emit stock.changed event ONLY after transaction has committed
+    this.eventEmitter.emit(
+      "stock.changed",
+      new StockChangedEvent(result.productId, result.newQuantity, result.type),
+    );
+
+    return result;
+  }
+
+  // Emits stock.changed event after external atomic transaction commits
+  emitStockChanged(productId: string, newQuantity: number, type: MovementType) {
+    this.eventEmitter.emit(
+      "stock.changed",
+      new StockChangedEvent(productId, newQuantity, type),
+    );
   }
 }
