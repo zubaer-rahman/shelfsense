@@ -1,8 +1,11 @@
 import { Module } from "@nestjs/common";
+import { PurchaseOrdersService } from "./purchase-orders.service.js";
+import { PurchaseOrdersController } from "./purchase-orders.controller.js";
 
 // Configures dependency injection and encapsulates Purchase Order procurement domain workflows.
 @Module({
-  providers: [],
-  exports: [],
+  controllers: [PurchaseOrdersController],
+  providers: [PurchaseOrdersService],
+  exports: [PurchaseOrdersService],
 })
 export class PurchaseOrdersModule {}
