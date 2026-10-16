@@ -13,6 +13,7 @@ import { ProductsModule } from './products/products.module.js';
 import { StockModule } from './stock/stock.module.js';
 import { AlertsModule } from './alerts/alerts.module.js';
 import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module.js';
+import { ForecastModule } from './forecast/forecast.module.js';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module.j
     StockModule,
     AlertsModule,
     PurchaseOrdersModule,
+    ForecastModule,
   ],
   controllers: [AppController],
   providers: [AppService],
