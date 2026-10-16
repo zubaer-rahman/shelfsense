@@ -35,7 +35,10 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return result;
+    return {
+      message: "Logged in successfully",
+      ...result,
+    };
   }
 
   @Post("logout")
@@ -52,6 +55,9 @@ export class AuthController {
   @Get("me")
   @UseGuards(JwtAuthGuard)
   getMe(@CurrentUser() user: unknown) {
-    return user;
+    return {
+      message: "User profile retrieved successfully",
+      user,
+    };
   }
 }

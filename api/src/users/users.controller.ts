@@ -14,17 +14,29 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const user = await this.usersService.create(createUserDto);
+    return {
+      message: "User registered successfully",
+      user,
+    };
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAll() {
+    const users = await this.usersService.findAll();
+    return {
+      message: "Users retrieved successfully",
+      users,
+    };
   }
 
   @Patch(":id/deactivate")
-  deactivate(@Param("id") id: string) {
-    return this.usersService.deactivate(id);
+  async deactivate(@Param("id") id: string) {
+    const user = await this.usersService.deactivate(id);
+    return {
+      message: "User account deactivated successfully",
+      user,
+    };
   }
 }
