@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -52,6 +53,33 @@ export class PurchaseOrdersController {
     const purchaseOrder = await this.poService.findById(id);
     return {
       message: "Purchase order details retrieved successfully",
+      purchaseOrder,
+    };
+  }
+
+  @Patch(":id/order")
+  async order(@Param("id") id: string) {
+    const purchaseOrder = await this.poService.order(id);
+    return {
+      message: "Purchase order marked as ORDERED",
+      purchaseOrder,
+    };
+  }
+
+  @Patch(":id/receive")
+  async receive(@Param("id") id: string, @CurrentUser() user: { id: string }) {
+    const purchaseOrder = await this.poService.receive(id, user.id);
+    return {
+      message: "Purchase order items received and stock updated",
+      purchaseOrder,
+    };
+  }
+
+  @Patch(":id/cancel")
+  async cancel(@Param("id") id: string) {
+    const purchaseOrder = await this.poService.cancel(id);
+    return {
+      message: "Purchase order cancelled successfully",
       purchaseOrder,
     };
   }

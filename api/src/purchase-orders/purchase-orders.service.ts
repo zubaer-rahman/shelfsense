@@ -3,15 +3,20 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { POStatus, Prisma } from "@prisma/client";
+import { MovementType, POStatus, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service.js";
+import { StockService } from "../stock/stock.service.js";
 import { CreatePurchaseOrderDto } from "./dto/create-purchase-order.dto.js";
 import { PurchaseOrderQueryDto } from "./dto/purchase-order-query.dto.js";
+import { POStateMachine } from "./state-machine/po-state-machine.js";
 
 // Manages purchase order lifecycles, draft creation, supplier verification, and order transitions.
 @Injectable()
 export class PurchaseOrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly stockService: StockService,
+  ) {}
 
   // Creates a new DRAFT purchase order validating supplier integrity and product relationships.
   async createDraft(dto: CreatePurchaseOrderDto, userId: string) {
@@ -206,5 +211,125 @@ export class PurchaseOrdersService {
     }
 
     return po;
+  }
+
+  // Transitions purchase order from DRAFT to ORDERED, stamping orderedAt timestamp.
+  async order(id: string) {
+    const po = await this.findById(id);
+
+    POStateMachine.assertValidTransition(po.status, POStatus.ORDERED);
+
+    return this.prisma.purchaseOrder.update({
+      where: { id },
+      data: {
+        status: POStatus.ORDERED,
+        orderedAt: new Date(),
+      },
+      include: {
+        supplier: true,
+        items: { include: { product: true } },
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    });
+  }
+
+  // Transitions purchase order from ORDERED to RECEIVED, creates STOCK_IN movements atomically,
+  // and emits stock.changed event for each received item after transaction commit.
+  async receive(id: string, userId: string) {
+    const po = await this.findById(id);
+
+    POStateMachine.assertValidTransition(po.status, POStatus.RECEIVED);
+
+    const { updatedPo, stockUpdates } = await this.prisma.$transaction(
+      async (tx) => {
+        // 1. Update PO status to RECEIVED and stamp receivedAt
+        const updated = await tx.purchaseOrder.update({
+          where: { id },
+          data: {
+            status: POStatus.RECEIVED,
+            receivedAt: new Date(),
+          },
+          include: {
+            supplier: true,
+            items: { include: { product: true } },
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+              },
+            },
+          },
+        });
+
+        // 2. Increment stock atomically for each item using the shared transaction client
+        const updates: { productId: string; newQuantity: number }[] = [];
+
+        for (const item of po.items) {
+          const movementResult = await this.stockService.recordMovement(
+            {
+              productId: item.productId,
+              type: MovementType.STOCK_IN,
+              quantity: item.quantity,
+              note: `Received from PO #${po.id.slice(0, 8)}`,
+            },
+            userId,
+            tx,
+          );
+
+          updates.push({
+            productId: item.productId,
+            newQuantity: movementResult.newQuantity,
+          });
+        }
+
+        return { updatedPo: updated, stockUpdates: updates };
+      },
+    );
+
+    // 3. Emit stock.changed events ONLY after transaction has committed
+    for (const update of stockUpdates) {
+      this.stockService.emitStockChanged(
+        update.productId,
+        update.newQuantity,
+        MovementType.STOCK_IN,
+      );
+    }
+
+    return updatedPo;
+  }
+
+  // Transitions purchase order from DRAFT or ORDERED to CANCELLED.
+  async cancel(id: string) {
+    const po = await this.findById(id);
+
+    POStateMachine.assertValidTransition(po.status, POStatus.CANCELLED);
+
+    return this.prisma.purchaseOrder.update({
+      where: { id },
+      data: {
+        status: POStatus.CANCELLED,
+      },
+      include: {
+        supplier: true,
+        items: { include: { product: true } },
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    });
   }
 }
