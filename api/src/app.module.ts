@@ -6,6 +6,7 @@ import { AppService } from "./app.service.js";
 
 import { validate } from './config/env.validation.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { UsersModule } from './users/users.module.js';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
     }),
     EventEmitterModule.forRoot(),
     PrismaModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
