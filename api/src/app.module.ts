@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { SuppliersModule } from './suppliers/suppliers.module.js';
 import { ProductsModule } from './products/products.module.js';
 import { StockModule } from './stock/stock.module.js';
+import { AlertsModule } from './alerts/alerts.module.js';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { StockModule } from './stock/stock.module.js';
     SuppliersModule,
     ProductsModule,
     StockModule,
+    AlertsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
