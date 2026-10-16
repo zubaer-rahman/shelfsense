@@ -135,3 +135,16 @@ ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_productId_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Hand-crafted CHECK constraints for business invariants (Phase 1)
+-- 1. Product quantity must be non-negative (no negative inventory)
+ALTER TABLE "Product" ADD CONSTRAINT "chk_product_quantity_non_negative" CHECK ("quantity" >= 0);
+
+-- 2. Product reorder level must be non-negative
+ALTER TABLE "Product" ADD CONSTRAINT "chk_product_reorder_level_non_negative" CHECK ("reorderLevel" >= 0);
+
+-- 3. Purchase order items must have positive quantity
+ALTER TABLE "PurchaseOrderItem" ADD CONSTRAINT "chk_po_item_quantity_positive" CHECK ("quantity" > 0);
+
+-- 4. Stock movement quantity cannot be zero
+ALTER TABLE "StockMovement" ADD CONSTRAINT "chk_stock_movement_quantity_nonzero" CHECK ("quantity" <> 0);
