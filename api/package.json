@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
     "lint": "tsc --noEmit",
-    "test": "jest",
+    "test": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "prisma:generate": "prisma generate --schema prisma/schema",
