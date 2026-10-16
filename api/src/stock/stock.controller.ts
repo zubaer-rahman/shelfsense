@@ -2,12 +2,15 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  Get,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import { MovementType, Role } from "@prisma/client";
 import { StockService } from "./stock.service.js";
 import { CreateStockMovementDto } from "./dto/create-stock-movement.dto.js";
+import { StockMovementQueryDto } from "./dto/stock-movement-query.dto.js";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard.js";
 import { RolesGuard } from "../common/guards/roles.guard.js";
 import { CurrentUser } from "../common/decorators/current-user.decorator.js";
@@ -42,6 +45,15 @@ export class StockController {
       message: "Stock movement recorded successfully",
       movement: result.movement,
       currentStock: result.newQuantity,
+    };
+  }
+
+  @Get("movements")
+  async findAll(@Query() query: StockMovementQueryDto) {
+    const result = await this.stockService.findAll(query);
+    return {
+      message: "Stock movements retrieved successfully",
+      ...result,
     };
   }
 }

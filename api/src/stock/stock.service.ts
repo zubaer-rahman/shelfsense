@@ -11,6 +11,7 @@ import {
   AdjustmentDirection,
   CreateStockMovementDto,
 } from "./dto/create-stock-movement.dto.js";
+import { StockMovementQueryDto } from "./dto/stock-movement-query.dto.js";
 import { StockChangedEvent } from "./events/stock-changed.event.js";
 
 // Strategy function defining how sign rule is calculated per movement type.
@@ -175,5 +176,65 @@ export class StockService {
       "stock.changed",
       new StockChangedEvent(productId, newQuantity, type),
     );
+  }
+
+  // Queries historical stock movement records with optional filters and pagination.
+  async findAll(query: StockMovementQueryDto) {
+    const where: Prisma.StockMovementWhereInput = {};
+
+    if (query.productId) {
+      where.productId = query.productId;
+    }
+
+    if (query.type) {
+      where.type = query.type;
+    }
+
+    if (query.startDate || query.endDate) {
+      where.createdAt = {
+        ...(query.startDate && { gte: new Date(query.startDate) }),
+        ...(query.endDate && { lte: new Date(query.endDate) }),
+      };
+    }
+
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = query.skip;
+
+    const [items, total] = await Promise.all([
+      this.prisma.stockMovement.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              sku: true,
+              category: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
+      }),
+      this.prisma.stockMovement.count({ where }),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+    };
   }
 }
