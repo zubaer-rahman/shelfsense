@@ -12,6 +12,7 @@ import { SuppliersModule } from './suppliers/suppliers.module.js';
 import { ProductsModule } from './products/products.module.js';
 import { StockModule } from './stock/stock.module.js';
 import { AlertsModule } from './alerts/alerts.module.js';
+import { PurchaseOrdersModule } from './purchase-orders/purchase-orders.module.js';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AlertsModule } from './alerts/alerts.module.js';
     ProductsModule,
     StockModule,
     AlertsModule,
+    PurchaseOrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
