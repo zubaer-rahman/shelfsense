@@ -68,8 +68,8 @@ export function SalesTrendChart() {
   }, [chartData]);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-xs flex flex-col justify-between">
-      <div>
+    <div className="h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-xs flex flex-col justify-between">
+      <div className="flex-1 flex flex-col">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 border-b border-slate-100 dark:border-slate-800">
           <div>
             <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export function SalesTrendChart() {
         </div>
 
         {/* 4-State Chart Canvas */}
-        <div className="w-full h-[260px] pt-4">
+        <div className="w-full flex-1 min-h-[300px] pt-4">
           {isLoading ? (
             <div className="w-full h-full flex flex-col justify-between p-4">
               <Skeleton className="h-4 w-32" />

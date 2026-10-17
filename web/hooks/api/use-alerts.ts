@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, extractPaginatedItems } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { Product } from "@/types/domain";
 import { PaginatedResponse } from "@/types/api";
@@ -32,16 +32,16 @@ export function useLowStockAlerts(params: AlertQueryParams = {}) {
         },
       });
 
-      const list: LowStockProduct[] =
-        res?.items || res?.data || (Array.isArray(res) ? res : []);
+      const { items, total, page, limit, totalPages } =
+        extractPaginatedItems<LowStockProduct>(res);
 
       return {
-        data: list,
-        items: list,
-        total: res?.total ?? list.length,
-        page: res?.page ?? (params.page || 1),
-        limit: res?.limit ?? (params.limit || 5),
-        totalPages: res?.totalPages ?? 1,
+        data: items,
+        items,
+        total,
+        page,
+        limit,
+        totalPages,
       } as PaginatedResponse<LowStockProduct>;
     },
     staleTime: 30 * 1000,
@@ -61,16 +61,16 @@ export function useNearExpiryAlerts(params: NearExpiryQueryParams = {}) {
         },
       });
 
-      const list: Product[] =
-        res?.items || res?.data || (Array.isArray(res) ? res : []);
+      const { items, total, page, limit, totalPages } =
+        extractPaginatedItems<Product>(res);
 
       return {
-        data: list,
-        items: list,
-        total: res?.total ?? list.length,
-        page: res?.page ?? (params.page || 1),
-        limit: res?.limit ?? (params.limit || 5),
-        totalPages: res?.totalPages ?? 1,
+        data: items,
+        items,
+        total,
+        page,
+        limit,
+        totalPages,
       } as PaginatedResponse<Product>;
     },
     staleTime: 30 * 1000,
@@ -88,16 +88,16 @@ export function useExpiredAlerts(params: AlertQueryParams = {}) {
         },
       });
 
-      const list: Product[] =
-        res?.items || res?.data || (Array.isArray(res) ? res : []);
+      const { items, total, page, limit, totalPages } =
+        extractPaginatedItems<Product>(res);
 
       return {
-        data: list,
-        items: list,
-        total: res?.total ?? list.length,
-        page: res?.page ?? (params.page || 1),
-        limit: res?.limit ?? (params.limit || 5),
-        totalPages: res?.totalPages ?? 1,
+        data: items,
+        items,
+        total,
+        page,
+        limit,
+        totalPages,
       } as PaginatedResponse<Product>;
     },
     staleTime: 30 * 1000,

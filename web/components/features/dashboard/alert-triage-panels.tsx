@@ -202,21 +202,29 @@ export function AlertTriagePanels() {
               </span>
             </div>
 
-            {/* Horizon Switcher */}
-            <div className="inline-flex items-center p-0.5 bg-slate-100 dark:bg-slate-800 rounded-md text-[10px] font-semibold">
-              {([7, 14, 30] as const).map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setNearExpiryDays(d)}
-                  className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-                    nearExpiryDays === d
-                      ? "bg-white dark:bg-slate-700 text-teal-700 dark:text-teal-300 shadow-xs"
-                      : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
-                  }`}
-                >
-                  {d}d
-                </button>
-              ))}
+            <div className="flex items-center gap-2">
+              {/* Horizon Switcher */}
+              <div className="inline-flex items-center p-0.5 bg-slate-100 dark:bg-slate-800 rounded-md text-[10px] font-semibold">
+                {([7, 14, 30] as const).map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setNearExpiryDays(d)}
+                    className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+                      nearExpiryDays === d
+                        ? "bg-white dark:bg-slate-700 text-teal-700 dark:text-teal-300 shadow-xs"
+                        : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    {d}d
+                  </button>
+                ))}
+              </div>
+              <Link
+                href={`/products?status=NEAR_EXPIRY&days=${nearExpiryDays}`}
+                className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline"
+              >
+                View all
+              </Link>
             </div>
           </div>
 
@@ -310,7 +318,7 @@ export function AlertTriagePanels() {
               </span>
             </div>
             <Link
-              href="/products"
+              href="/products?status=EXPIRED"
               className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline"
             >
               View all

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, extractPaginatedItems } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { Supplier } from "@/types/domain";
 import { PaginatedResponse } from "@/types/api";
@@ -26,17 +26,16 @@ export function useSuppliers(params: SupplierQueryParams = {}) {
         },
       });
 
-      // Extract items from backend envelope
-      const list: Supplier[] =
-        res?.items || res?.data || res?.suppliers || (Array.isArray(res) ? res : []);
+      const { items, total, page, limit, totalPages } =
+        extractPaginatedItems<Supplier>(res);
 
       return {
-        data: list,
-        items: list,
-        total: res?.total ?? list.length,
-        page: res?.page ?? (params.page || 1),
-        limit: res?.limit ?? (params.limit || 50),
-        totalPages: res?.totalPages ?? (Math.ceil((res?.total ?? list.length) / (params.limit || 50)) || 1),
+        data: items,
+        items,
+        total,
+        page,
+        limit,
+        totalPages,
       } as PaginatedResponse<Supplier>;
     },
     staleTime: 60 * 1000,

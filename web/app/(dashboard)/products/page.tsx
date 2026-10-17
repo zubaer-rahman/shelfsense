@@ -34,14 +34,11 @@ import {
 
 const CATEGORIES = [
   "All Categories",
-  "Antibiotics",
-  "Analgesics",
-  "Cardiovascular",
-  "Respiratory",
-  "Gastrointestinal",
-  "Dermatology",
-  "Vitamins & Supplements",
-  "Emergency & First Aid",
+  "Beverages",
+  "Pantry",
+  "Bakery",
+  "Dairy",
+  "Household",
 ];
 
 const STATUS_OPTIONS = [
@@ -49,6 +46,8 @@ const STATUS_OPTIONS = [
   { label: "In Stock", value: "IN_STOCK" },
   { label: "Low Stock", value: "LOW_STOCK" },
   { label: "Out of Stock", value: "OUT_OF_STOCK" },
+  { label: "Near Expiry (≤30d)", value: "NEAR_EXPIRY" },
+  { label: "Expired", value: "EXPIRED" },
 ];
 
 function ProductsContent() {
@@ -62,6 +61,7 @@ function ProductsContent() {
   const category = searchParams.get("category") || "All Categories";
   const stockStatus = searchParams.get("status") || "All Status";
   const page = parseInt(searchParams.get("page") || "1", 10);
+  const days = parseInt(searchParams.get("days") || "30", 10);
 
   // Search input local state for smooth typing & debouncing
   const [searchInput, setSearchInput] = React.useState(search);
@@ -95,6 +95,7 @@ function ProductsContent() {
     search: search || undefined,
     category: category !== "All Categories" ? category : undefined,
     stockStatus: stockStatus !== "All Status" ? stockStatus : undefined,
+    days: stockStatus === "NEAR_EXPIRY" ? days : undefined,
   });
 
   const products = productsData?.data ?? [];

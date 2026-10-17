@@ -120,7 +120,7 @@ export function DashboardKpiCards() {
 
       {/* 3. Near Expiry */}
       <Link
-        href="/products"
+        href="/products?status=NEAR_EXPIRY"
         className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:shadow-sm hover:border-amber-500/30 transition-all cursor-pointer group"
       >
         <div className="flex items-center justify-between">
@@ -153,7 +153,7 @@ export function DashboardKpiCards() {
 
       {/* 4. Expired */}
       <Link
-        href="/products"
+        href="/products?status=EXPIRED"
         className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:shadow-sm hover:border-rose-500/30 transition-all cursor-pointer group"
       >
         <div className="flex items-center justify-between">

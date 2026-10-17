@@ -110,3 +110,30 @@ export const apiClient = {
   delete: <T>(endpoint: string, options?: RequestOptions) =>
     request<T>(endpoint, { ...options, method: "DELETE" }),
 };
+
+export function extractPaginatedItems<T>(res: any): {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+} {
+  const payload = res?.data || res;
+  const items: T[] =
+    (Array.isArray(payload?.items) && payload.items) ||
+    (Array.isArray(res?.items) && res.items) ||
+    (Array.isArray(payload?.data) && payload.data) ||
+    (Array.isArray(payload) && payload) ||
+    (Array.isArray(res) && res) ||
+    [];
+
+  const total = payload?.total ?? res?.total ?? items.length;
+  const page = payload?.page ?? res?.page ?? 1;
+  const limit = payload?.limit ?? res?.limit ?? 10;
+  const totalPages =
+    payload?.totalPages ??
+    res?.totalPages ??
+    (Math.ceil(total / Math.max(1, limit)) || 1);
+
+  return { items, total, page, limit, totalPages };
+}

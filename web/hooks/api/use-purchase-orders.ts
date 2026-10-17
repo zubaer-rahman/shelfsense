@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, extractPaginatedItems } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { PurchaseOrder, POStatus } from "@/types/domain";
 import { PaginatedResponse } from "@/types/api";
@@ -35,16 +35,16 @@ export function usePurchaseOrders(params: PurchaseOrderQueryParams = {}) {
         },
       });
 
-      const list: PurchaseOrder[] =
-        res?.items || res?.data || (Array.isArray(res) ? res : []);
+      const { items, total, page, limit, totalPages } =
+        extractPaginatedItems<PurchaseOrder>(res);
 
       return {
-        data: list,
-        items: list,
-        total: res?.total ?? list.length,
-        page: res?.page ?? (params.page || 1),
-        limit: res?.limit ?? (params.limit || 20),
-        totalPages: res?.totalPages ?? 1,
+        data: items,
+        items,
+        total,
+        page,
+        limit,
+        totalPages,
       } as PaginatedResponse<PurchaseOrder>;
     },
     placeholderData: (prev) => prev,

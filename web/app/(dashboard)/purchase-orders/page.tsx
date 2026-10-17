@@ -54,7 +54,7 @@ function PurchaseOrdersContent() {
   const { data: suppliersData } = useSuppliers({ limit: 100 });
   const suppliers = suppliersData?.data || suppliersData?.items || [];
 
-  const { data: productsData } = useProducts({ limit: 200 });
+  const { data: productsData } = useProducts({ limit: 100 });
   const products = productsData?.data || productsData?.items || [];
 
   // Query purchase orders with pagination and filters

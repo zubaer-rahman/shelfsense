@@ -5,7 +5,16 @@ const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:4000";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password } = body;
+    let { email, password, demoRole } = body;
+
+    // Server-side mapping for demo access without exposing credentials to client
+    if (demoRole === "OWNER") {
+      email = "owner@shelfsense.local";
+      password = process.env.DEMO_OWNER_PASSWORD || "password123";
+    } else if (demoRole === "STAFF") {
+      email = "staff@shelfsense.local";
+      password = process.env.DEMO_STAFF_PASSWORD || "password123";
+    }
 
     if (!email || !password) {
       return NextResponse.json(

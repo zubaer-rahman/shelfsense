@@ -26,14 +26,11 @@ interface ProductFormSheetProps {
 }
 
 const CATEGORIES = [
-  "Antibiotics",
-  "Analgesics",
-  "Cardiovascular",
-  "Respiratory",
-  "Gastrointestinal",
-  "Dermatology",
-  "Vitamins & Supplements",
-  "Emergency & First Aid",
+  "Beverages",
+  "Pantry",
+  "Bakery",
+  "Dairy",
+  "Household",
   "Other",
 ];
 
@@ -60,7 +57,7 @@ export function ProductFormSheet({
     defaultValues: {
       name: "",
       sku: "",
-      category: "Antibiotics",
+      category: "Beverages",
       unitPrice: 0,
       quantity: 0,
       reorderLevel: 10,
@@ -89,7 +86,7 @@ export function ProductFormSheet({
         reset({
           name: "",
           sku: "",
-          category: "Antibiotics",
+          category: "Beverages",
           unitPrice: 12.5,
           quantity: 50,
           reorderLevel: 20,

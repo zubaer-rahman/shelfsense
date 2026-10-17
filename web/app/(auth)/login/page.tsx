@@ -42,8 +42,8 @@ function LoginForm() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "owner@shelfsense.local",
-      password: "password123",
+      email: "",
+      password: "",
       rememberMe: true,
     },
   });
@@ -86,12 +86,37 @@ function LoginForm() {
     }
   };
 
-  const handleQuickDemo = (role: "OWNER" | "STAFF") => {
-    const email = role === "OWNER" ? "owner@shelfsense.local" : "staff@shelfsense.local";
-    const password = "password123";
-    setValue("email", email, { shouldValidate: true });
-    setValue("password", password, { shouldValidate: true });
-    handleSubmit(onSubmit)();
+  const handleQuickDemo = async (role: "OWNER" | "STAFF") => {
+    setIsLoading(true);
+    setServerError(null);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ demoRole: role }),
+      });
+
+      const resData = await res.json();
+
+      if (!res.ok) {
+        const errorMsg = resData.message || "Demo sign-in failed. Please try again.";
+        setServerError(errorMsg);
+        setIsLoading(false);
+        return;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
+      toast.success("Welcome back!", {
+        description: `Signed in as ${role === "OWNER" ? "Store Owner" : "Staff Member"}`,
+      });
+
+      router.push(from);
+      router.refresh();
+    } catch (err: any) {
+      setServerError(err.message || "Failed to connect to authentication service.");
+      setIsLoading(false);
+    }
   };
 
   return (
