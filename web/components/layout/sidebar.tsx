@@ -13,6 +13,7 @@ import {
   LogOut,
   ShieldCheck,
   UserCheck,
+  Truck,
 } from "lucide-react";
 import { User } from "@/types/domain";
 
@@ -50,6 +51,11 @@ export function Sidebar({
       href: "/products",
       label: "Products",
       icon: <Package className="w-5 h-5" />,
+    },
+    {
+      href: "/suppliers",
+      label: "Suppliers",
+      icon: <Truck className="w-5 h-5" />,
     },
     {
       href: "/stock/movements",

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/format";
+import { useProducts } from "@/hooks/api/use-products";
 
 interface QuickSearchItem {
   id: string;
@@ -29,10 +30,26 @@ interface QuickSearchDialogProps {
 export function QuickSearchDialog({
   open,
   onOpenChange,
-  items = [],
+  items: propItems,
 }: QuickSearchDialogProps) {
   const [query, setQuery] = React.useState("");
   const router = useRouter();
+  const { data: productsData } = useProducts({ limit: 50 });
+
+  const items = React.useMemo(() => {
+    if (propItems && propItems.length > 0) return propItems;
+    if (productsData?.items) {
+      return productsData.items.map((p) => ({
+        id: p.id,
+        name: p.name,
+        sku: p.sku,
+        category: p.category,
+        quantity: p.quantity,
+        unitPrice: Number(p.unitPrice),
+      }));
+    }
+    return [];
+  }, [propItems, productsData]);
 
   // Filter items matching query
   const filteredItems = React.useMemo(() => {
