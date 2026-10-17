@@ -1,5 +1,5 @@
-import { plainToInstance } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, validateSync } from 'class-validator';
+import { plainToInstance } from "class-transformer";
+import { IsNumber, IsOptional, IsString, validateSync } from "class-validator";
 
 export class EnvironmentVariables {
   @IsString()
@@ -10,7 +10,7 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsOptional()
-  JWT_EXPIRES_IN: string = '7d';
+  JWT_EXPIRES_IN: string = "7d";
 
   @IsNumber()
   @IsOptional()
@@ -18,7 +18,11 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsOptional()
-  CORS_ORIGIN: string = 'http://localhost:3000';
+  CORS_ORIGIN: string = "http://localhost:3000";
+
+  @IsString()
+  @IsOptional()
+  NODE_ENV: string = "development";
 
   @IsNumber()
   @IsOptional()
@@ -35,6 +39,14 @@ export class EnvironmentVariables {
   @IsNumber()
   @IsOptional()
   NEAR_EXPIRY_DAYS: number = 7;
+
+  @IsString()
+  @IsOptional()
+  GEMINI_API_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  GEMINI_MODEL: string = "gemini-1.5-flash";
 }
 
 export function validate(config: Record<string, unknown>) {

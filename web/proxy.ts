@@ -5,24 +5,25 @@ export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isLoginPage = pathname === "/login";
-  const isPublicApi = pathname.startsWith("/api/auth");
+  const isApiRoute = pathname.startsWith("/api/");
   const isStaticAsset =
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
     pathname.includes(".");
 
-  if (isPublicApi || isStaticAsset) {
+  // Allow API routes and static assets to pass through untouched
+  if (isApiRoute || isStaticAsset) {
     return NextResponse.next();
   }
 
-  // If user is not authenticated and trying to access protected pages
+  // If user is not authenticated and trying to access protected dashboard pages
   if (!token && !isLoginPage) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // If user is already authenticated and trying to visit /login
+  // If user is already authenticated and trying to visit /login, redirect to root
   if (token && isLoginPage) {
     return NextResponse.redirect(new URL("/", req.url));
   }
