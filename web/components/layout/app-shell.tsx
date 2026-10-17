@@ -4,7 +4,6 @@ import * as React from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { QuickSearchDialog } from "@/components/layout/quick-search-dialog";
-import { DevToolbar } from "@/components/layout/dev-toolbar";
 import { useCurrentUser } from "@/hooks/api/use-current-user";
 
 interface AppShellProps {
@@ -12,25 +11,15 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { user, logout } = useCurrentUser();
+  const { user, logout, isLoggingOut } = useCurrentUser();
   const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
   const [quickSearchOpen, setQuickSearchOpen] = React.useState(false);
 
-  // Local simulated role for testing live
-  const [simulatedRole, setSimulatedRole] = React.useState<"OWNER" | "STAFF">("OWNER");
-
-  // Sync simulatedRole with real user role if loaded
-  React.useEffect(() => {
-    if (user?.role) {
-      setSimulatedRole(user.role);
-    }
-  }, [user?.role]);
-
-  const effectiveUser = user ? { ...user, role: simulatedRole } : {
+  const effectiveUser = user || {
     id: "usr-demo",
     name: "Elena Rostova",
     email: "elena.rostova@cornercare.com",
-    role: simulatedRole,
+    role: "OWNER" as const,
   };
 
   // Global ⌘K / Ctrl+K keyboard shortcut
@@ -53,9 +42,6 @@ export function AppShell({ children }: AppShellProps) {
         setMobileOpen={setMobileSidebarOpen}
         currentUser={effectiveUser}
         onLogout={logout}
-        onSwitchRole={() =>
-          setSimulatedRole((prev) => (prev === "OWNER" ? "STAFF" : "OWNER"))
-        }
       />
 
       {/* Main Content Area */}
@@ -65,6 +51,8 @@ export function AppShell({ children }: AppShellProps) {
           onOpenMobileMenu={() => setMobileSidebarOpen(true)}
           onOpenQuickSearch={() => setQuickSearchOpen(true)}
           currentUser={effectiveUser}
+          onLogout={logout}
+          isLoggingOut={isLoggingOut}
         />
 
         {/* Viewport Canvas */}
@@ -77,12 +65,6 @@ export function AppShell({ children }: AppShellProps) {
       <QuickSearchDialog
         open={quickSearchOpen}
         onOpenChange={setQuickSearchOpen}
-      />
-
-      {/* Floating Developer Simulation Toolbar */}
-      <DevToolbar
-        role={simulatedRole}
-        onRoleChange={setSimulatedRole}
       />
     </div>
   );

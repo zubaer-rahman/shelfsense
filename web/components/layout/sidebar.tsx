@@ -22,7 +22,6 @@ interface SidebarProps {
   setMobileOpen: (open: boolean) => void;
   currentUser?: User | null;
   onLogout?: () => void;
-  onSwitchRole?: () => void;
 }
 
 export function Sidebar({
@@ -30,7 +29,6 @@ export function Sidebar({
   setMobileOpen,
   currentUser,
   onLogout,
-  onSwitchRole,
 }: SidebarProps) {
   const pathname = usePathname();
 
@@ -197,7 +195,7 @@ export function Sidebar({
             )}
           </div>
 
-          {/* Role badge & quick role switch */}
+          {/* Role badge */}
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/50 dark:border-slate-700/50 text-[11px]">
             <span
               className={`inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full ${
@@ -213,15 +211,6 @@ export function Sidebar({
               )}
               {isOwner ? "Owner" : "Staff"}
             </span>
-
-            {onSwitchRole && (
-              <button
-                onClick={onSwitchRole}
-                className="text-teal-600 dark:text-teal-400 hover:underline font-medium"
-              >
-                Switch to {isOwner ? "Staff" : "Owner"}
-              </button>
-            )}
           </div>
         </div>
       </div>

@@ -15,6 +15,15 @@ export const metadata: Metadata = {
   title: "ShelfSense | Retail Inventory Management & Restock Forecasting",
   description:
     "Smart retail inventory tracking, stock movements, and demand-based reorder forecasting system.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+    apple: [
+      { url: "/apple-icon.svg", type: "image/svg+xml" },
+    ],
+  },
 };
 
 export default function RootLayout({
