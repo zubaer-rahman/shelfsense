@@ -66,7 +66,6 @@ async function bootstrap() {
   await app.listen(port);
 
   logger.log(`🚀 ShelfSense API running on: http://localhost:${port}`);
-  logger.log(`🔗 Global prefix active: http://localhost:${port}/api/v1`);
   logger.log(`📖 Swagger UI documentation: http://localhost:${port}/api/docs`);
   logger.log(`🛡️ CORS configured for origin(s): ${corsOrigin}`);
 }
