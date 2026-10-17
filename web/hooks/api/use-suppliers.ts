@@ -26,32 +26,17 @@ export function useSuppliers(params: SupplierQueryParams = {}) {
         },
       });
 
-      if (res && Array.isArray(res.data)) {
-        return res as PaginatedResponse<Supplier>;
-      } else if (Array.isArray(res)) {
-        return {
-          data: res,
-          total: res.length,
-          page: 1,
-          limit: res.length,
-          totalPages: 1,
-        } as PaginatedResponse<Supplier>;
-      } else if (res && res.suppliers && Array.isArray(res.suppliers)) {
-        return {
-          data: res.suppliers,
-          total: res.total ?? res.suppliers.length,
-          page: res.page ?? 1,
-          limit: res.limit ?? 50,
-          totalPages: res.totalPages ?? 1,
-        } as PaginatedResponse<Supplier>;
-      }
+      // Extract items from backend envelope
+      const list: Supplier[] =
+        res?.items || res?.data || res?.suppliers || (Array.isArray(res) ? res : []);
 
       return {
-        data: [],
-        total: 0,
-        page: 1,
-        limit: 50,
-        totalPages: 1,
+        data: list,
+        items: list,
+        total: res?.total ?? list.length,
+        page: res?.page ?? (params.page || 1),
+        limit: res?.limit ?? (params.limit || 50),
+        totalPages: res?.totalPages ?? (Math.ceil((res?.total ?? list.length) / (params.limit || 50)) || 1),
       } as PaginatedResponse<Supplier>;
     },
     staleTime: 60 * 1000,

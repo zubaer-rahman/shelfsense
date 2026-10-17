@@ -32,33 +32,17 @@ export function useProducts(params: ProductQueryParams = {}) {
         },
       });
 
-      // Handle PaginatedResponse envelope from backend
-      if (res && Array.isArray(res.data)) {
-        return res as PaginatedResponse<Product>;
-      } else if (Array.isArray(res)) {
-        return {
-          data: res,
-          total: res.length,
-          page: 1,
-          limit: res.length,
-          totalPages: 1,
-        } as PaginatedResponse<Product>;
-      } else if (res && res.products && Array.isArray(res.products)) {
-        return {
-          data: res.products,
-          total: res.total ?? res.products.length,
-          page: res.page ?? 1,
-          limit: res.limit ?? 10,
-          totalPages: res.totalPages ?? 1,
-        } as PaginatedResponse<Product>;
-      }
+      // Extract items from backend envelope
+      const list: Product[] =
+        res?.items || res?.data || res?.products || (Array.isArray(res) ? res : []);
 
       return {
-        data: [],
-        total: 0,
-        page: 1,
-        limit: 10,
-        totalPages: 1,
+        data: list,
+        items: list,
+        total: res?.total ?? list.length,
+        page: res?.page ?? (params.page || 1),
+        limit: res?.limit ?? (params.limit || 10),
+        totalPages: res?.totalPages ?? (Math.ceil((res?.total ?? list.length) / (params.limit || 10)) || 1),
       } as PaginatedResponse<Product>;
     },
     staleTime: 30 * 1000,
