@@ -69,7 +69,7 @@ export function QuickSearchDialog({
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search medications, categories, or SKU..."
+            placeholder="Search products, categories, or SKU..."
             className="w-full text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {query && (
@@ -87,7 +87,7 @@ export function QuickSearchDialog({
           {!query.trim() ? (
             <div className="py-8 text-center text-xs text-muted-foreground space-y-1">
               <Package className="w-6 h-6 mx-auto stroke-[1.5] text-muted-foreground/60 mb-2" />
-              <p>Type a product name (e.g. &quot;Amoxicillin&quot; or &quot;Saline&quot;) or SKU</p>
+              <p>Type a product name or SKU</p>
               <p className="text-[11px] text-muted-foreground/70">Press <kbd className="font-mono">ESC</kbd> to close</p>
             </div>
           ) : filteredItems.length === 0 ? (

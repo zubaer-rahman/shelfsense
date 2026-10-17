@@ -12,7 +12,7 @@ export default function NotFound() {
         <EmptyState
           icon={FileQuestion}
           title="Page Not Found"
-          description="The requested dispensary view or resource does not exist or has been moved."
+          description="The requested store view or resource does not exist or has been moved."
         />
         <div className="mt-5">
           <Button asChild size="sm">

@@ -117,12 +117,17 @@ function LoginForm() {
               <path d="M3 18h18" />
             </svg>
           </div>
-          <div>
-            <span className="font-bold text-xl tracking-tight text-foreground">
-              ShelfSense
-            </span>
-            <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-              Live
+          <div className="flex flex-col">
+            <div className="flex items-center">
+              <span className="font-bold text-xl tracking-tight text-foreground leading-tight">
+                ShelfSense
+              </span>
+              <span className="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                Live
+              </span>
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-none">
+              Retail inventory
             </span>
           </div>
         </div>
@@ -130,7 +135,7 @@ function LoginForm() {
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-medium">
             <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span>Corner Care Pharmacy • Cloud Synced</span>
+            <span>Corner Care Retail • Cloud Synced</span>
           </div>
           <ThemeToggle />
         </div>
@@ -146,10 +151,10 @@ function LoginForm() {
                 <Building2 className="w-6 h-6" />
               </div>
               <h1 className="text-xl font-bold tracking-tight text-foreground">
-                Dispensary Portal
+                Store Portal
               </h1>
               <p className="text-xs text-muted-foreground mt-1">
-                Enter dispensary credentials to access the inventory ledger.
+                Enter store credentials to access the inventory ledger.
               </p>
             </div>
 
@@ -292,7 +297,7 @@ function LoginForm() {
 
       {/* Footer */}
       <footer className="w-full max-w-7xl mx-auto px-6 py-6 text-center text-xs text-muted-foreground">
-        ShelfSense Pharmacy Platform • Standard GxP Compliant Ledger
+        ShelfSense Retail Platform • Enterprise Inventory Ledger
       </footer>
     </div>
   );

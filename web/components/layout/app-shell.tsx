@@ -4,6 +4,7 @@ import * as React from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { QuickSearchDialog } from "@/components/layout/quick-search-dialog";
+import { DevToolbar } from "@/components/layout/dev-toolbar";
 import { useCurrentUser } from "@/hooks/api/use-current-user";
 
 interface AppShellProps {
@@ -14,6 +15,23 @@ export function AppShell({ children }: AppShellProps) {
   const { user, logout } = useCurrentUser();
   const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
   const [quickSearchOpen, setQuickSearchOpen] = React.useState(false);
+
+  // Local simulated role for testing live
+  const [simulatedRole, setSimulatedRole] = React.useState<"OWNER" | "STAFF">("OWNER");
+
+  // Sync simulatedRole with real user role if loaded
+  React.useEffect(() => {
+    if (user?.role) {
+      setSimulatedRole(user.role);
+    }
+  }, [user?.role]);
+
+  const effectiveUser = user ? { ...user, role: simulatedRole } : {
+    id: "usr-demo",
+    name: "Elena Rostova",
+    email: "elena.rostova@cornercare.com",
+    role: simulatedRole,
+  };
 
   // Global ⌘K / Ctrl+K keyboard shortcut
   React.useEffect(() => {
@@ -28,13 +46,16 @@ export function AppShell({ children }: AppShellProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex transition-colors">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 text-[#0F172A] dark:text-slate-100 flex transition-colors">
       {/* Sidebar Navigation */}
       <Sidebar
         mobileOpen={mobileSidebarOpen}
         setMobileOpen={setMobileSidebarOpen}
-        currentUser={user}
+        currentUser={effectiveUser}
         onLogout={logout}
+        onSwitchRole={() =>
+          setSimulatedRole((prev) => (prev === "OWNER" ? "STAFF" : "OWNER"))
+        }
       />
 
       {/* Main Content Area */}
@@ -43,7 +64,7 @@ export function AppShell({ children }: AppShellProps) {
         <Header
           onOpenMobileMenu={() => setMobileSidebarOpen(true)}
           onOpenQuickSearch={() => setQuickSearchOpen(true)}
-          currentUser={user}
+          currentUser={effectiveUser}
         />
 
         {/* Viewport Canvas */}
@@ -56,6 +77,12 @@ export function AppShell({ children }: AppShellProps) {
       <QuickSearchDialog
         open={quickSearchOpen}
         onOpenChange={setQuickSearchOpen}
+      />
+
+      {/* Floating Developer Simulation Toolbar */}
+      <DevToolbar
+        role={simulatedRole}
+        onRoleChange={setSimulatedRole}
       />
     </div>
   );

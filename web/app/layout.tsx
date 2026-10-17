@@ -12,9 +12,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ShelfSense | Smart Pharmacy & Inventory Management",
+  title: "ShelfSense | Retail Inventory Management & Restock Forecasting",
   description:
-    "Smart inventory, expiry tracking, and demand-based reorder suggestions for pharmacies and retail shops.",
+    "Smart retail inventory tracking, stock movements, and demand-based reorder forecasting system.",
 };
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
