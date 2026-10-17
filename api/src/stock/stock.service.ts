@@ -237,4 +237,69 @@ export class StockService {
       totalPages: Math.ceil(total / limit) || 1,
     };
   }
+
+  // Verifies that product quantity strictly matches the sum of all signed stock movements.
+  async reconcileStock(productId?: string) {
+    if (productId) {
+      const product = await this.prisma.product.findUnique({
+        where: { id: productId },
+        select: { id: true, name: true, sku: true, quantity: true },
+      });
+
+      if (!product) {
+        throw new NotFoundException("Product not found");
+      }
+
+      const aggregate = await this.prisma.stockMovement.aggregate({
+        where: { productId },
+        _sum: { quantity: true },
+        _count: { id: true },
+      });
+
+      const ledgerQuantity = aggregate._sum.quantity ?? 0;
+      const isBalanced = product.quantity === ledgerQuantity;
+
+      return {
+        productId: product.id,
+        sku: product.sku,
+        cachedQuantity: product.quantity,
+        ledgerQuantity,
+        movementCount: aggregate._count.id,
+        isBalanced,
+        discrepancy: product.quantity - ledgerQuantity,
+      };
+    }
+
+    const products = await this.prisma.product.findMany({
+      select: { id: true, name: true, sku: true, quantity: true },
+    });
+
+    const results = await Promise.all(
+      products.map(async (p) => {
+        const aggregate = await this.prisma.stockMovement.aggregate({
+          where: { productId: p.id },
+          _sum: { quantity: true },
+          _count: { id: true },
+        });
+
+        const ledgerQuantity = aggregate._sum.quantity ?? 0;
+        return {
+          productId: p.id,
+          sku: p.sku,
+          cachedQuantity: p.quantity,
+          ledgerQuantity,
+          movementCount: aggregate._count.id,
+          isBalanced: p.quantity === ledgerQuantity,
+          discrepancy: p.quantity - ledgerQuantity,
+        };
+      }),
+    );
+
+    const isAllBalanced = results.every((r) => r.isBalanced);
+    return {
+      totalProducts: results.length,
+      isAllBalanced,
+      results,
+    };
+  }
 }
