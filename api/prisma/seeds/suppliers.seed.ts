@@ -1,6 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Supplier } from "@prisma/client";
 
-export async function seedSuppliers(prisma: PrismaClient) {
+// Seeds representative catalog suppliers for food, pantry, dairy, and household goods.
+export async function seedSuppliers(prisma: PrismaClient): Promise<Supplier[]> {
   const suppliersData = [
     {
       name: "Apex Foods & Beverages",
@@ -24,7 +25,7 @@ export async function seedSuppliers(prisma: PrismaClient) {
     },
   ];
 
-  const createdSuppliers = [];
+  const createdSuppliers: Supplier[] = [];
   for (const s of suppliersData) {
     const existing = await prisma.supplier.findFirst({
       where: { name: s.name },
