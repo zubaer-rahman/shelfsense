@@ -4,24 +4,14 @@ import * as React from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { QuickSearchDialog } from "@/components/layout/quick-search-dialog";
-import { User } from "@/types/domain";
+import { useCurrentUser } from "@/hooks/api/use-current-user";
 
 interface AppShellProps {
   children: React.ReactNode;
-  currentUser?: User | null;
-  onLogout?: () => void;
 }
 
-export function AppShell({
-  children,
-  currentUser = {
-    id: "usr-demo",
-    name: "Dr. Alex Vance",
-    email: "alex@cornercare.com",
-    role: "OWNER",
-  },
-  onLogout,
-}: AppShellProps) {
+export function AppShell({ children }: AppShellProps) {
+  const { user, logout } = useCurrentUser();
   const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
   const [quickSearchOpen, setQuickSearchOpen] = React.useState(false);
 
@@ -43,8 +33,8 @@ export function AppShell({
       <Sidebar
         mobileOpen={mobileSidebarOpen}
         setMobileOpen={setMobileSidebarOpen}
-        currentUser={currentUser}
-        onLogout={onLogout}
+        currentUser={user}
+        onLogout={logout}
       />
 
       {/* Main Content Area */}
@@ -53,7 +43,7 @@ export function AppShell({
         <Header
           onOpenMobileMenu={() => setMobileSidebarOpen(true)}
           onOpenQuickSearch={() => setQuickSearchOpen(true)}
-          currentUser={currentUser}
+          currentUser={user}
         />
 
         {/* Viewport Canvas */}
