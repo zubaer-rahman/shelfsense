@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: shelfsense-api
+    runtime: node
+    rootDir: api
+    buildCommand: npm install && npm run prisma:generate && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/v1/health
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        value: "http://localhost:3000,https://shelfsense.vercel.app,https://*.vercel.app"
+      - key: LEAD_TIME_DAYS
+        value: "7"
+      - key: SAFETY_BUFFER
+        value: "5"
+      - key: FORECAST_WINDOW_DAYS
+        value: "14"
+      - key: NEAR_EXPIRY_DAYS
+        value: "7"
