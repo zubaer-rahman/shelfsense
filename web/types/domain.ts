@@ -70,18 +70,22 @@ export interface PurchaseOrderItem {
 
 export interface PurchaseOrder {
   id: string;
-  orderNumber: string;
+  orderNumber?: string;
   supplierId: string;
   supplier?: Supplier;
   status: POStatus;
-  orderDate: string;
+  createdById?: string;
+  createdBy?: User;
+  orderedAt?: string | null;
+  receivedAt?: string | null;
+  orderDate?: string;
   expectedDate?: string | null;
   receivedDate?: string | null;
   notes?: string | null;
   totalCost?: number;
   items: PurchaseOrderItem[];
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface DashboardMetrics {
