@@ -1,0 +1,1329 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "operationId": "AppController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        },
+        "summary": "Service health probe and availability check",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Users list retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all registered users (OWNER only)",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/users/{id}/deactivate": {
+      "patch": {
+        "operationId": "UsersController_deactivate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deactivated"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Deactivate user account (OWNER only)",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully authenticated with JWT token"
+          },
+          "401": {
+            "description": "Invalid credentials or inactive user"
+          }
+        },
+        "summary": "Authenticate with email and password",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully logged out"
+          }
+        },
+        "summary": "Logout user and clear session cookie",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Authenticated profile retrieved"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retrieve authenticated user identity and role",
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/api/v1/suppliers": {
+      "get": {
+        "operationId": "SuppliersController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suppliers retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List suppliers with optional pagination and search filters",
+        "tags": [
+          "Suppliers"
+        ]
+      }
+    },
+    "/api/v1/suppliers/{id}": {
+      "get": {
+        "operationId": "SuppliersController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier found"
+          },
+          "404": {
+            "description": "Supplier not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get supplier details by ID",
+        "tags": [
+          "Suppliers"
+        ]
+      },
+      "patch": {
+        "operationId": "SuppliersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSupplierDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Supplier updated"
+          },
+          "404": {
+            "description": "Supplier not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update supplier details (OWNER only)",
+        "tags": [
+          "Suppliers"
+        ]
+      },
+      "delete": {
+        "operationId": "SuppliersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Supplier deactivated"
+          },
+          "404": {
+            "description": "Supplier not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft delete / deactivate a supplier (OWNER only)",
+        "tags": [
+          "Suppliers"
+        ]
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "ProductsController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Products retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List products with search, category filter, and pagination",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/products/{id}": {
+      "get": {
+        "operationId": "ProductsController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product found"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get product details by ID",
+        "tags": [
+          "Products"
+        ]
+      },
+      "patch": {
+        "operationId": "ProductsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product updated"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update product details (OWNER only)",
+        "tags": [
+          "Products"
+        ]
+      },
+      "delete": {
+        "operationId": "ProductsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deactivated"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft delete / deactivate a product (OWNER only)",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/stock/movements": {
+      "post": {
+        "operationId": "StockController_recordMovement",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockMovementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Movement recorded successfully"
+          },
+          "409": {
+            "description": "Insufficient stock for requested reduction"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Record an inventory stock movement (SALE: all, STOCK_IN/ADJUSTMENT: OWNER)",
+        "tags": [
+          "Stock Movements"
+        ]
+      },
+      "get": {
+        "operationId": "StockController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historical stock movements retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Query historical stock movements with filters and pagination",
+        "tags": [
+          "Stock Movements"
+        ]
+      }
+    },
+    "/api/v1/alerts/low-stock": {
+      "get": {
+        "operationId": "AlertsController_getLowStockAlerts",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Low stock alerts retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List products with low stock (quantity <= reorderLevel)",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/api/v1/alerts/near-expiry": {
+      "get": {
+        "operationId": "AlertsController_getNearExpiryAlerts",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Near-expiry alerts retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List products expiring within specified horizon (near expiry)",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/api/v1/alerts/expired": {
+      "get": {
+        "operationId": "AlertsController_getExpiredAlerts",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Expired product alerts retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List products that have expired (expiryDate < today)",
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/api/v1/purchase-orders": {
+      "post": {
+        "operationId": "PurchaseOrdersController_createDraft",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePurchaseOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Purchase order draft created"
+          },
+          "400": {
+            "description": "Validation error or invalid supplier items"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a draft purchase order with validated items (OWNER only)",
+        "tags": [
+          "Purchase Orders"
+        ]
+      },
+      "get": {
+        "operationId": "PurchaseOrdersController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-indexed)",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase orders retrieved"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List purchase orders with optional status filter (OWNER only)",
+        "tags": [
+          "Purchase Orders"
+        ]
+      }
+    },
+    "/api/v1/purchase-orders/{id}": {
+      "get": {
+        "operationId": "PurchaseOrdersController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase order found"
+          },
+          "404": {
+            "description": "Purchase order not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get purchase order details and items by ID (OWNER only)",
+        "tags": [
+          "Purchase Orders"
+        ]
+      }
+    },
+    "/api/v1/purchase-orders/{id}/order": {
+      "patch": {
+        "operationId": "PurchaseOrdersController_order",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order status transitioned to ORDERED"
+          },
+          "400": {
+            "description": "Invalid transition"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Transition purchase order from DRAFT to ORDERED (OWNER only)",
+        "tags": [
+          "Purchase Orders"
+        ]
+      }
+    },
+    "/api/v1/purchase-orders/{id}/receive": {
+      "patch": {
+        "operationId": "PurchaseOrdersController_receive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Items received and inventory updated"
+          },
+          "400": {
+            "description": "Invalid transition"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Transition purchase order from ORDERED to RECEIVED and atomically increment stock (OWNER only)",
+        "tags": [
+          "Purchase Orders"
+        ]
+      }
+    },
+    "/api/v1/purchase-orders/{id}/cancel": {
+      "patch": {
+        "operationId": "PurchaseOrdersController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order cancelled"
+          },
+          "400": {
+            "description": "Invalid transition"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel purchase order (from DRAFT or ORDERED) (OWNER only)",
+        "tags": [
+          "Purchase Orders"
+        ]
+      }
+    },
+    "/api/v1/forecast/{productId}": {
+      "get": {
+        "operationId": "ForecastController_getForecast",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "strategy",
+            "required": false,
+            "in": "query",
+            "description": "Forecasting strategy algorithm",
+            "schema": {
+              "default": "moving_average",
+              "type": "string",
+              "enum": [
+                "naive",
+                "moving_average",
+                "linear_regression"
+              ]
+            }
+          },
+          {
+            "name": "window",
+            "required": false,
+            "in": "query",
+            "description": "Historical days lookback window",
+            "schema": {
+              "minimum": 1,
+              "maximum": 365,
+              "default": 14,
+              "example": 14,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Forecast calculated successfully"
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Calculate expected daily demand and reorder suggestion for a product",
+        "tags": [
+          "Demand Forecasting"
+        ]
+      }
+    },
+    "/api/v1/forecast/{productId}/create-po": {
+      "post": {
+        "operationId": "ForecastController_createReorderFromSuggestion[0]",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "strategy",
+            "required": false,
+            "in": "query",
+            "description": "Forecasting strategy algorithm",
+            "schema": {
+              "default": "moving_average",
+              "type": "string",
+              "enum": [
+                "naive",
+                "moving_average",
+                "linear_regression"
+              ]
+            }
+          },
+          {
+            "name": "window",
+            "required": false,
+            "in": "query",
+            "description": "Historical days lookback window",
+            "schema": {
+              "minimum": 1,
+              "maximum": 365,
+              "default": 14,
+              "example": 14,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Purchase order draft created"
+          },
+          "400": {
+            "description": "Suggested reorder quantity is zero or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate a draft Purchase Order based on current demand forecast (OWNER only)",
+        "tags": [
+          "Demand Forecasting"
+        ]
+      }
+    },
+    "/api/v1/forecast/{productId}/reorder": {
+      "post": {
+        "operationId": "ForecastController_createReorderFromSuggestion[1]",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "strategy",
+            "required": false,
+            "in": "query",
+            "description": "Forecasting strategy algorithm",
+            "schema": {
+              "default": "moving_average",
+              "type": "string",
+              "enum": [
+                "naive",
+                "moving_average",
+                "linear_regression"
+              ]
+            }
+          },
+          {
+            "name": "window",
+            "required": false,
+            "in": "query",
+            "description": "Historical days lookback window",
+            "schema": {
+              "minimum": 1,
+              "maximum": 365,
+              "default": 14,
+              "example": 14,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Purchase order draft created"
+          },
+          "400": {
+            "description": "Suggested reorder quantity is zero or invalid"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate a draft Purchase Order based on current demand forecast (OWNER only)",
+        "tags": [
+          "Demand Forecasting"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "ShelfSense API",
+    "description": "Production-grade inventory, expiry tracking, and demand-based reorder suggestions API for retail shops.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User login, session cookies, and profile endpoints"
+    },
+    {
+      "name": "Users",
+      "description": "User management and account deactivation (OWNER)"
+    },
+    {
+      "name": "Suppliers",
+      "description": "Supplier partner directory management"
+    },
+    {
+      "name": "Products",
+      "description": "Inventory product catalog, search, and SKU validation"
+    },
+    {
+      "name": "Stock Movements",
+      "description": "Inventory transactions, sales, and audit movements"
+    },
+    {
+      "name": "Alerts",
+      "description": "Depleted inventory, near-expiry, and expired items"
+    },
+    {
+      "name": "Purchase Orders",
+      "description": "Procurement drafts, ordering, and receiving lifecycle"
+    },
+    {
+      "name": "Demand Forecasting",
+      "description": "AI/ML demand forecasting and automated reorders"
+    },
+    {
+      "name": "Health",
+      "description": "Service health check probes"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "JWT",
+        "description": "Enter JWT token",
+        "in": "header"
+      },
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "accessToken"
+      }
+    },
+    "schemas": {
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Staff Member",
+            "description": "Full name of the user"
+          },
+          "email": {
+            "type": "string",
+            "example": "staff2@shelfsense.local",
+            "description": "Email address"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "minLength": 6,
+            "description": "Account password"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "STAFF"
+            ],
+            "default": "STAFF",
+            "description": "Role assigned to the user"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "owner@shelfsense.local",
+            "description": "Registered user email address"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "Account password"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "CreateSupplierDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Apex Foods & Beverages",
+            "description": "Supplier company name"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+1-555-0101",
+            "description": "Supplier phone contact"
+          },
+          "email": {
+            "type": "string",
+            "example": "sales@apexfoods.com",
+            "description": "Supplier email address"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateSupplierDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateProductDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Organic Almond Milk 1L",
+            "description": "Product name"
+          },
+          "sku": {
+            "type": "string",
+            "example": "APX-ALM-01",
+            "description": "Unique stock keeping unit code"
+          },
+          "category": {
+            "type": "string",
+            "example": "Beverages",
+            "description": "Product category"
+          },
+          "unitPrice": {
+            "type": "number",
+            "example": 3.99,
+            "description": "Unit price in dollars"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 45,
+            "default": 0,
+            "description": "Initial on-hand quantity"
+          },
+          "reorderLevel": {
+            "type": "number",
+            "example": 20,
+            "default": 0,
+            "description": "Reorder threshold level"
+          },
+          "expiryDate": {
+            "type": "string",
+            "example": "2026-12-31",
+            "description": "Expiration date (YYYY-MM-DD)"
+          },
+          "supplierId": {
+            "type": "string",
+            "example": "b21a8cd3-4876-4d0c-8ce8-7e44fa734b07",
+            "description": "Supplier UUID"
+          }
+        },
+        "required": [
+          "name",
+          "sku",
+          "category",
+          "unitPrice",
+          "supplierId"
+        ]
+      },
+      "UpdateProductDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateStockMovementDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "example": "a8a927d7-d069-42c2-b5e0-b3b3a6c38d21",
+            "description": "UUID of the product"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SALE",
+              "STOCK_IN",
+              "ADJUSTMENT"
+            ],
+            "example": "SALE",
+            "description": "Type of stock transaction: SALE (-), STOCK_IN (+), or ADJUSTMENT"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 5,
+            "minimum": 1,
+            "description": "Positive integer quantity of units"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "INCREASE",
+              "DECREASE"
+            ],
+            "example": "INCREASE",
+            "description": "Required strictly for ADJUSTMENT (INCREASE or DECREASE). Rejected for SALE or STOCK_IN."
+          },
+          "note": {
+            "type": "string",
+            "example": "Customer checkout register #1",
+            "description": "Audit or reference note"
+          }
+        },
+        "required": [
+          "productId",
+          "type",
+          "quantity"
+        ]
+      },
+      "CreatePurchaseOrderItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "example": "b21a8cd3-4876-4d0c-8ce8-7e44fa734b07",
+            "description": "UUID of the product to order"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 25,
+            "minimum": 1,
+            "description": "Quantity of units to order"
+          },
+          "unitCost": {
+            "type": "number",
+            "example": 2.5,
+            "description": "Wholesale acquisition cost per unit"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity",
+          "unitCost"
+        ]
+      },
+      "CreatePurchaseOrderDto": {
+        "type": "object",
+        "properties": {
+          "supplierId": {
+            "type": "string",
+            "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "description": "UUID of the supplying partner"
+          },
+          "items": {
+            "description": "Line items to include on the purchase order",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreatePurchaseOrderItemDto"
+            }
+          }
+        },
+        "required": [
+          "supplierId",
+          "items"
+        ]
+      }
+    }
+  }
+}
