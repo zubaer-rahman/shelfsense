@@ -115,11 +115,14 @@ describe("Stock Ledger Reconciliation", () => {
 
       const report = await service.reconcileStock();
 
-      expect(report.totalProducts).toBe(2);
-      expect(report.isAllBalanced).toBe(true);
-      expect(report.results).toHaveLength(2);
-      expect(report.results[0]!.isBalanced).toBe(true);
-      expect(report.results[1]!.isBalanced).toBe(true);
+      expect("results" in report).toBe(true);
+      if ("results" in report && report.results) {
+        expect(report.totalProducts).toBe(2);
+        expect(report.isAllBalanced).toBe(true);
+        expect(report.results).toHaveLength(2);
+        expect(report.results[0]!.isBalanced).toBe(true);
+        expect(report.results[1]!.isBalanced).toBe(true);
+      }
     });
   });
 

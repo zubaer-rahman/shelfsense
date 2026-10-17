@@ -36,7 +36,7 @@ export class ForecastController {
     };
   }
 
-  @Post(":productId/reorder")
+  @Post([":productId/create-po", ":productId/reorder"])
   @Roles(Role.OWNER)
   async createReorderFromSuggestion(
     @Param("productId") productId: string,
