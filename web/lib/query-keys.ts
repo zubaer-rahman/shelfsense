@@ -26,6 +26,9 @@ export const queryKeys = {
   },
   alerts: {
     all: ["alerts"] as const,
+    lowStock: (params?: any) => ["alerts", "low-stock", params] as const,
+    nearExpiry: (params?: any) => ["alerts", "near-expiry", params] as const,
+    expired: (params?: any) => ["alerts", "expired", params] as const,
   },
   forecast: {
     all: ["forecast"] as const,
