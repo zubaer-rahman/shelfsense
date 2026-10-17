@@ -9,6 +9,12 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from "@nestjs/swagger";
 import { Role } from "@prisma/client";
 import { SuppliersService } from "./suppliers.service.js";
 import { CreateSupplierDto } from "./dto/create-supplier.dto.js";
@@ -19,12 +25,15 @@ import { RolesGuard } from "../common/guards/roles.guard.js";
 import { Roles } from "../common/decorators/roles.decorator.js";
 
 // Exposes HTTP endpoints for supplier directory management, partner registration, and deactivation.
+@ApiTags("Suppliers")
+@ApiBearerAuth("bearer")
 @Controller("suppliers")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) {}
 
-  @Post()
+  @ApiOperation({ summary: "Register a new supplier (OWNER only)" })
+  @ApiResponse({ status: 201, description: "Supplier registered successfully" })
   @Roles(Role.OWNER)
   async create(@Body() createSupplierDto: CreateSupplierDto) {
     const supplier = await this.suppliersService.create(createSupplierDto);
@@ -34,6 +43,8 @@ export class SuppliersController {
     };
   }
 
+  @ApiOperation({ summary: "List suppliers with optional pagination and search filters" })
+  @ApiResponse({ status: 200, description: "Suppliers retrieved" })
   @Get()
   async findAll(@Query() query: SupplierQueryDto) {
     const result = await this.suppliersService.findAll(query);
@@ -43,6 +54,9 @@ export class SuppliersController {
     };
   }
 
+  @ApiOperation({ summary: "Get supplier details by ID" })
+  @ApiResponse({ status: 200, description: "Supplier found" })
+  @ApiResponse({ status: 404, description: "Supplier not found" })
   @Get(":id")
   async findById(@Param("id") id: string) {
     const supplier = await this.suppliersService.findById(id);
@@ -52,6 +66,9 @@ export class SuppliersController {
     };
   }
 
+  @ApiOperation({ summary: "Update supplier details (OWNER only)" })
+  @ApiResponse({ status: 200, description: "Supplier updated" })
+  @ApiResponse({ status: 404, description: "Supplier not found" })
   @Patch(":id")
   @Roles(Role.OWNER)
   async update(
@@ -65,6 +82,9 @@ export class SuppliersController {
     };
   }
 
+  @ApiOperation({ summary: "Soft delete / deactivate a supplier (OWNER only)" })
+  @ApiResponse({ status: 200, description: "Supplier deactivated" })
+  @ApiResponse({ status: 404, description: "Supplier not found" })
   @Delete(":id")
   @Roles(Role.OWNER)
   async remove(@Param("id") id: string) {

@@ -43,7 +43,9 @@ ShelfSense is a production-grade inventory management and forecasting backend bu
    ```bash
    npm --workspace=api run dev
    ```
-   The API will be running on `http://localhost:4000/api/v1`.
+   - API Base URL: `http://localhost:4000/api/v1`
+   - **Interactive Swagger UI**: `http://localhost:4000/api/docs`
+   - OpenAPI JSON Schema: `http://localhost:4000/api/docs-json`
 
 6. **Run the AI/ML forecast evaluation:**
    ```bash

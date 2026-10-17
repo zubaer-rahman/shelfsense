@@ -42,3 +42,6 @@ Thumbs.db
 
 # AI / agent 
 .agents/
+
+# reference
+reference/*

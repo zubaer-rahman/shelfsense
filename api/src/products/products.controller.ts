@@ -9,6 +9,12 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from "@nestjs/swagger";
 import { Role } from "@prisma/client";
 import { ProductsService } from "./products.service.js";
 import { CreateProductDto } from "./dto/create-product.dto.js";
@@ -19,12 +25,16 @@ import { RolesGuard } from "../common/guards/roles.guard.js";
 import { Roles } from "../common/decorators/roles.decorator.js";
 
 // Exposes HTTP endpoints for inventory catalog management, search queries, and lifecycle actions.
+@ApiTags("Products")
+@ApiBearerAuth("bearer")
 @Controller("products")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Post()
+  @ApiOperation({ summary: "Create a new product in the catalog (OWNER only)" })
+  @ApiResponse({ status: 201, description: "Product created successfully" })
+  @ApiResponse({ status: 409, description: "SKU already exists" })
   @Roles(Role.OWNER)
   async create(@Body() createProductDto: CreateProductDto) {
     const product = await this.productsService.create(createProductDto);
@@ -34,6 +44,8 @@ export class ProductsController {
     };
   }
 
+  @ApiOperation({ summary: "List products with search, category filter, and pagination" })
+  @ApiResponse({ status: 200, description: "Products retrieved" })
   @Get()
   async findAll(@Query() query: ProductQueryDto) {
     const result = await this.productsService.findAll(query);
@@ -43,6 +55,9 @@ export class ProductsController {
     };
   }
 
+  @ApiOperation({ summary: "Get product details by ID" })
+  @ApiResponse({ status: 200, description: "Product found" })
+  @ApiResponse({ status: 404, description: "Product not found" })
   @Get(":id")
   async findById(@Param("id") id: string) {
     const product = await this.productsService.findById(id);
@@ -52,6 +67,9 @@ export class ProductsController {
     };
   }
 
+  @ApiOperation({ summary: "Update product details (OWNER only)" })
+  @ApiResponse({ status: 200, description: "Product updated" })
+  @ApiResponse({ status: 404, description: "Product not found" })
   @Patch(":id")
   @Roles(Role.OWNER)
   async update(
@@ -65,6 +83,9 @@ export class ProductsController {
     };
   }
 
+  @ApiOperation({ summary: "Soft delete / deactivate a product (OWNER only)" })
+  @ApiResponse({ status: 200, description: "Product deactivated" })
+  @ApiResponse({ status: 404, description: "Product not found" })
   @Delete(":id")
   @Roles(Role.OWNER)
   async remove(@Param("id") id: string) {
