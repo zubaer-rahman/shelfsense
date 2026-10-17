@@ -41,6 +41,7 @@ export interface Product {
 }
 
 export type MovementType = "SALE" | "STOCK_IN" | "ADJUSTMENT";
+export type AdjustmentDirection = "INCREASE" | "DECREASE";
 
 export interface StockMovement {
   id: string;
@@ -48,6 +49,7 @@ export interface StockMovement {
   product?: Product;
   quantity: number;
   type: MovementType;
+  note?: string | null;
   reason?: string | null;
   reference?: string | null;
   userId?: string | null;
