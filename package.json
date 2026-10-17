@@ -23,6 +23,7 @@
     "bcrypt@5.1.1": true,
     "esbuild@0.28.2": true,
     "@prisma/client@6.19.3": true,
+    "@prisma/client@7.10.1": true,
     "prisma@7.10.1": true,
     "@prisma/engines@7.10.1": true
   }
