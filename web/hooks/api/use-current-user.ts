@@ -13,7 +13,13 @@ export function useCurrentUser() {
 
   const query = useQuery({
     queryKey: queryKeys.auth.me,
-    queryFn: () => apiClient.get<User>("/auth/me"),
+    queryFn: async () => {
+      const res = await apiClient.get<{ user?: User } | User>("/auth/me");
+      if (res && "user" in res && res.user) {
+        return res.user;
+      }
+      return res as User;
+    },
     staleTime: 5 * 60 * 1000,
     retry: false,
   });

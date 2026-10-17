@@ -163,11 +163,11 @@ export function Sidebar({
           <div className="p-2 rounded-lg bg-muted/40 mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-full bg-primary/20 text-primary font-semibold text-xs flex items-center justify-center shrink-0">
-                {currentUser.name.slice(0, 2).toUpperCase()}
+                {(currentUser.name || currentUser.email || "US").slice(0, 2).toUpperCase()}
               </div>
               <div className="flex flex-col min-w-0 text-left">
                 <span className="text-xs font-semibold text-foreground truncate">
-                  {currentUser.name}
+                  {currentUser.name || currentUser.email || "User"}
                 </span>
                 <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                   {currentUser.role === "OWNER" ? (

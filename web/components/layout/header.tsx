@@ -87,14 +87,14 @@ export function Header({
         {currentUser && (
           <div className="flex items-center gap-2 pl-2 border-l border-border">
             <div className="w-8 h-8 rounded-full bg-primary/20 text-primary font-semibold text-xs flex items-center justify-center shrink-0">
-              {currentUser.name.slice(0, 2).toUpperCase()}
+              {(currentUser.name || currentUser.email || "US").slice(0, 2).toUpperCase()}
             </div>
             <div className="hidden lg:flex flex-col text-left">
               <span className="text-xs font-semibold text-foreground leading-tight">
-                {currentUser.name}
+                {currentUser.name || currentUser.email || "User"}
               </span>
               <span className="text-[10px] text-muted-foreground leading-none capitalize">
-                {currentUser.role.toLowerCase()}
+                {(currentUser.role || "staff").toLowerCase()}
               </span>
             </div>
           </div>
