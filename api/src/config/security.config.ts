@@ -34,7 +34,7 @@ export function parseCorsOrigin(
 
   const origins = rawOrigin
     .split(",")
-    .map((o) => o.trim())
+    .map((o) => o.trim().replace(/\/+$/, ""))
     .filter(Boolean);
 
   if (origins.length === 1 && !origins[0].includes("*")) {
