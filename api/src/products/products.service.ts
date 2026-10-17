@@ -36,7 +36,7 @@ export class ProductsService {
     });
   }
 
-  async findAll(query: ProductQueryDto) {
+  private buildWhereClause(query: ProductQueryDto): Prisma.ProductWhereInput {
     const where: Prisma.ProductWhereInput = {};
 
     if (query.isActive !== undefined) {
@@ -59,6 +59,11 @@ export class ProductsService {
       ];
     }
 
+    return where;
+  }
+
+  async findAll(query: ProductQueryDto) {
+    const where = this.buildWhereClause(query);
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = query.skip;

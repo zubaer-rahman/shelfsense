@@ -7,6 +7,7 @@ import {
 import type { Request, Response } from "express";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
+import { serializeDecimals } from "../utils/decimal-serializer.util.js";
 
 export interface ResponseEnvelope<T> {
   statusCode: number;
@@ -16,8 +17,18 @@ export interface ResponseEnvelope<T> {
   [key: string]: unknown;
 }
 
-// Intercepts outgoing controller responses, recursively converts Prisma Decimal types to numbers,
-// and shapes responses into a standardized, human-readable envelope.
+const DEFAULT_MESSAGES: Record<string, string> = {
+  GET: "Data retrieved successfully",
+  POST: "Resource created successfully",
+  PATCH: "Resource updated successfully",
+  PUT: "Resource updated successfully",
+  DELETE: "Resource deleted successfully",
+};
+
+/**
+ * Intercepts successful controller responses, normalizes Prisma Decimal values,
+ * and packages output into a standardized JSON response envelope.
+ */
 @Injectable()
 export class TransformInterceptor<T>
   implements NestInterceptor<T, ResponseEnvelope<unknown>>
@@ -41,7 +52,7 @@ export class TransformInterceptor<T>
           "data" in resData &&
           "message" in resData
         ) {
-          return this.serializeDecimals(resData) as ResponseEnvelope<unknown>;
+          return serializeDecimals(resData) as ResponseEnvelope<unknown>;
         }
 
         let message = "Operation completed successfully";
@@ -61,25 +72,15 @@ export class TransformInterceptor<T>
               payload = rawObj.data;
             } else {
               const { message: _, ...remaining } = rawObj;
-              // If only message was returned, data is null
               payload = Object.keys(remaining).length > 0 ? remaining : null;
             }
           }
         } else {
-          // Method-based default message fallback
           const method = request.method?.toUpperCase();
-          if (method === "GET") {
-            message = "Data retrieved successfully";
-          } else if (method === "POST") {
-            message = "Resource created successfully";
-          } else if (method === "PATCH" || method === "PUT") {
-            message = "Resource updated successfully";
-          } else if (method === "DELETE") {
-            message = "Resource deleted successfully";
-          }
+          message = DEFAULT_MESSAGES[method] || message;
         }
 
-        const serializedData = this.serializeDecimals(payload);
+        const serializedData = serializeDecimals(payload);
 
         const envelope: ResponseEnvelope<unknown> = {
           statusCode,
@@ -88,7 +89,7 @@ export class TransformInterceptor<T>
           timestamp: new Date().toISOString(),
         };
 
-        // For backward compatibility with clients directly reading accessToken from root
+        // For backward compatibility with clients reading accessToken directly from root
         if (
           serializedData &&
           typeof serializedData === "object" &&
@@ -100,40 +101,5 @@ export class TransformInterceptor<T>
         return envelope;
       }),
     );
-  }
-
-  // Recursively converts Prisma Decimal instances to standard JavaScript numbers.
-  private serializeDecimals(value: unknown): unknown {
-    if (value === null || value === undefined) {
-      return value;
-    }
-
-    // Prisma Decimal check (duck-typing for Decimal.js / Prisma Decimal)
-    if (
-      typeof value === "object" &&
-      value !== null &&
-      "toNumber" in value &&
-      typeof (value as { toNumber: unknown }).toNumber === "function"
-    ) {
-      return (value as { toNumber: () => number }).toNumber();
-    }
-
-    if (value instanceof Date) {
-      return value.toISOString();
-    }
-
-    if (Array.isArray(value)) {
-      return value.map((item) => this.serializeDecimals(item));
-    }
-
-    if (typeof value === "object") {
-      const transformed: Record<string, unknown> = {};
-      for (const [key, val] of Object.entries(value)) {
-        transformed[key] = this.serializeDecimals(val);
-      }
-      return transformed;
-    }
-
-    return value;
   }
 }

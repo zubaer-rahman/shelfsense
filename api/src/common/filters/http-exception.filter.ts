@@ -3,98 +3,52 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
-  HttpStatus,
   Logger,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 
-// Intercepts all application exceptions to return a standardized, uniform error payload.
-@Catch()
+/**
+ * Intercepts HTTP exceptions to format a standardized, uniform error payload.
+ * Handles NestJS HTTP exceptions and flattens ValidationPipe error messages.
+ */
+@Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-    let errorType = "Internal Server Error";
-    let message: string | string[] = "An unexpected server error occurred";
+    const statusCode = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
 
-    if (exception instanceof HttpException) {
-      statusCode = exception.getStatus();
-      const exceptionResponse = exception.getResponse();
+    let errorType = exception.name.replace("Exception", "");
+    let message: string | string[] = exception.message;
 
-      if (typeof exceptionResponse === "string") {
-        message = exceptionResponse;
-        errorType = exception.name.replace("Exception", "");
-      } else if (
-        typeof exceptionResponse === "object" &&
-        exceptionResponse !== null
-      ) {
-        const resObj = exceptionResponse as Record<string, unknown>;
-        errorType = (resObj.error as string) || exception.name.replace("Exception", "");
-
-        if (Array.isArray(resObj.message)) {
-          // Normalize ValidationPipe error messages array into readable message
-          message = resObj.message.join("; ");
-        } else if (typeof resObj.message === "string") {
-          message = resObj.message;
-        } else {
-          message = exception.message;
-        }
-      }
+    if (typeof exceptionResponse === "string") {
+      message = exceptionResponse;
     } else if (
-      exception &&
-      typeof exception === "object" &&
-      "code" in exception
+      typeof exceptionResponse === "object" &&
+      exceptionResponse !== null
     ) {
-      // Handle Prisma Known Request Errors
-      const prismaError = exception as { code: string; meta?: Record<string, unknown> };
+      const resObj = exceptionResponse as Record<string, unknown>;
+      errorType = (resObj.error as string) || errorType;
 
-      switch (prismaError.code) {
-        case "P2002": {
-          statusCode = HttpStatus.CONFLICT;
-          errorType = "Conflict";
-          const target = prismaError.meta?.target;
-          message = target
-            ? `A record with this ${Array.isArray(target) ? target.join(", ") : target} already exists`
-            : "A unique constraint violation occurred";
-          break;
-        }
-        case "P2025": {
-          statusCode = HttpStatus.NOT_FOUND;
-          errorType = "Not Found";
-          message = "The requested record was not found";
-          break;
-        }
-        case "P2003": {
-          statusCode = HttpStatus.BAD_REQUEST;
-          errorType = "Bad Request";
-          message = "Referenced entity does not exist";
-          break;
-        }
-        default: {
-          statusCode = HttpStatus.BAD_REQUEST;
-          errorType = "Database Error";
-          message = "A database operation failed";
-          break;
-        }
+      if (Array.isArray(resObj.message)) {
+        // Normalize ValidationPipe error messages array into readable delimited message
+        message = resObj.message.join("; ");
+      } else if (typeof resObj.message === "string") {
+        message = resObj.message;
       }
-    } else if (exception instanceof Error) {
-      this.logger.error(`Unhandled Exception: ${exception.message}`, exception.stack);
-      message = exception.message;
     }
 
-    const errorPayload = {
+    response.status(statusCode).json({
       statusCode,
       message,
       error: errorType,
       timestamp: new Date().toISOString(),
       path: request.originalUrl || request.url,
-    };
-
-    response.status(statusCode).json(errorPayload);
+    });
   }
 }

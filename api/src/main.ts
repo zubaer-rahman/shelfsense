@@ -12,7 +12,11 @@ import { NestFactory } from "@nestjs/core";
 import { ConfigService } from "@nestjs/config";
 import cookieParser from "cookie-parser";
 import { AppModule } from "./app.module.js";
-import { HttpExceptionFilter } from "./common/filters/http-exception.filter.js";
+import {
+  AllExceptionsFilter,
+  HttpExceptionFilter,
+  PrismaClientExceptionFilter,
+} from "./common/filters/index.js";
 import { TransformInterceptor } from "./common/interceptors/transform.interceptor.js";
 import { getHelmetMiddleware, getCorsOptions } from "./config/security.config.js";
 import { setupSwagger } from "./config/swagger.config.js";
@@ -38,8 +42,14 @@ async function bootstrap() {
   // Global routing prefix
   app.setGlobalPrefix("api/v1");
 
-  // Global filters, interceptors, and validation pipes
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // Global exception filters (Catch-all fallback -> Prisma mapper -> HTTP exception filter)
+  app.useGlobalFilters(
+    new AllExceptionsFilter(),
+    new PrismaClientExceptionFilter(),
+    new HttpExceptionFilter(),
+  );
+
+  // Global response transformer & validation pipes
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({

@@ -178,8 +178,9 @@ export class StockService {
     );
   }
 
-  // Queries historical stock movement records with optional filters and pagination.
-  async findAll(query: StockMovementQueryDto) {
+  private buildMovementWhereClause(
+    query: StockMovementQueryDto,
+  ): Prisma.StockMovementWhereInput {
     const where: Prisma.StockMovementWhereInput = {};
 
     if (query.productId) {
@@ -197,6 +198,12 @@ export class StockService {
       };
     }
 
+    return where;
+  }
+
+  // Queries historical stock movement records with optional filters and pagination.
+  async findAll(query: StockMovementQueryDto) {
+    const where = this.buildMovementWhereClause(query);
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = query.skip;
