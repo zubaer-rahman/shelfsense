@@ -2,7 +2,7 @@
 
 > Smart inventory, expiry tracking, and demand-based reorder suggestions for small shops.
 
-This file is the single source of truth for the backend build. It contains specifications only, no code. The Prisma schema (`prisma/schema.prisma`) is already authored by the developer and is **final**: do not modify it.
+This file is the single source of truth for the backend build. It contains specifications only, no code. The Prisma schema (`api/prisma/schema/`) is already authored by the developer and is **final**: do not modify it.
 
 ---
 
@@ -132,37 +132,39 @@ suggestedReorderQty = max(0, ceil(avgDailyDemand * LEAD_TIME_DAYS + SAFETY_BUFFE
 
 ---
 
-## 4. Module layout
+## 4. Module layout (api/)
 
 ```
-src/
-  main.ts
-  app.module.ts
-  config/            configuration + env validation
-  prisma/            PrismaModule (global), PrismaService (singleton)
-  common/
-    decorators/      @Roles(), @CurrentUser()
-    guards/          JwtAuthGuard, RolesGuard
-    filters/         global exception filter
-    dto/             PaginationDto
-    interceptors/    decimal serialization (if used)
-  auth/              controller, service, jwt strategy, DTOs
-  users/             controller, service, DTOs
-  suppliers/         controller, service, DTOs
-  products/          controller, service, DTOs
-  stock/             controller, service, movement handlers (strategy map), DTOs, events
-  alerts/            controller, service, listener (observer)
-  purchase-orders/   controller, service, transition map, DTOs
-  forecast/
-    strategies/      forecast-strategy.interface, naive, moving-average, linear-regression
-    forecast.service, forecast.controller
-    reorder.facade
-    scripts/         evaluate.ts (holdout + MAE)
-prisma/
-  schema.prisma      (final, do not edit)
-  migrations/
-  seed.ts
-test/
+api/
+  src/
+    main.ts
+    app.module.ts
+    config/            configuration + env validation
+    prisma/            PrismaModule (global), PrismaService (singleton)
+    common/
+      decorators/      @Roles(), @CurrentUser()
+      guards/          JwtAuthGuard, RolesGuard
+      filters/         global exception filter
+      dto/             PaginationDto
+      interceptors/    decimal serialization (if used)
+    auth/              controller, service, jwt strategy, DTOs
+    users/             controller, service, DTOs
+    suppliers/         controller, service, DTOs
+    products/          controller, service, DTOs
+    stock/             controller, service, movement handlers (strategy map), DTOs, events
+    alerts/            controller, service, listener (observer)
+    purchase-orders/   controller, service, transition map, DTOs
+    forecast/
+      strategies/      forecast-strategy.interface, naive, moving-average, linear-regression
+      forecast.service, forecast.controller
+      reorder.facade
+      scripts/         evaluate.ts (holdout + MAE)
+  prisma/
+    schema/            (final, do not edit)
+    migrations/
+    seeds/             modular seed files
+    seed.ts
+  test/
 ```
 
 ---
