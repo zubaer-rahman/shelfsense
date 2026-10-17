@@ -26,7 +26,7 @@ interface MovementHistoryTableProps {
   onProductFilterChange: (productId: string) => void;
 }
 
-export function MovementHistoryTable({
+export const MovementHistoryTable = React.memo(function MovementHistoryTable({
   movements,
   products,
   isLoading,
@@ -249,4 +249,4 @@ export function MovementHistoryTable({
       </div>
     </section>
   );
-}
+});

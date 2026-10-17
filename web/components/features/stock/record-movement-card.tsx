@@ -21,7 +21,7 @@ interface RecordMovementCardProps {
   onMovementRecorded?: () => void;
 }
 
-export function RecordMovementCard({
+export const RecordMovementCard = React.memo(function RecordMovementCard({
   products,
   currentUser,
   onMovementRecorded,
@@ -445,4 +445,4 @@ export function RecordMovementCard({
       </form>
     </section>
   );
-}
+});

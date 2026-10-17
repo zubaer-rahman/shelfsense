@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useProducts } from "@/hooks/api/use-products";
 import { useStockMovements } from "@/hooks/api/use-stock-movements";
 import { useCurrentUser } from "@/hooks/api/use-current-user";
@@ -12,13 +12,29 @@ import { MovementType } from "@/types/domain";
 import { Package, CheckCircle2 } from "lucide-react";
 
 function StockMovementsContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Read URL query params
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const typeParam = (searchParams.get("type") || "ALL") as MovementType | "ALL";
-  const productParam = searchParams.get("productId") || "ALL";
+  // Read URL query params into component state to avoid full route refreshes and jumping
+  const [page, setPage] = React.useState(() =>
+    Math.max(1, parseInt(searchParams.get("page") || "1", 10))
+  );
+  const [typeFilter, setTypeFilter] = React.useState<MovementType | "ALL">(
+    () => (searchParams.get("type") || "ALL") as MovementType | "ALL"
+  );
+  const [productFilter, setProductFilter] = React.useState<string>(
+    () => searchParams.get("productId") || "ALL"
+  );
+
+  // Sync state if URL changes externally (e.g. browser back/forward buttons)
+  React.useEffect(() => {
+    const p = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const t = (searchParams.get("type") || "ALL") as MovementType | "ALL";
+    const prod = searchParams.get("productId") || "ALL";
+
+    setPage((curr) => (curr !== p ? p : curr));
+    setTypeFilter((curr) => (curr !== t ? t : curr));
+    setProductFilter((curr) => (curr !== prod ? prod : curr));
+  }, [searchParams]);
 
   const { user: currentUser } = useCurrentUser();
 
@@ -38,17 +54,19 @@ function StockMovementsContent() {
   } = useStockMovements({
     page,
     limit: 10,
-    type: typeParam !== "ALL" ? typeParam : undefined,
-    productId: productParam !== "ALL" ? productParam : undefined,
+    type: typeFilter !== "ALL" ? typeFilter : undefined,
+    productId: productFilter !== "ALL" ? productFilter : undefined,
   });
 
   const movements = movementsData?.data || movementsData?.items || [];
   const totalPages = movementsData?.totalPages || 1;
   const totalRecords = movementsData?.total || 0;
 
-  // URL state update helper
-  const updateParams = (updates: Record<string, string | number | undefined | null>) => {
-    const next = new URLSearchParams(searchParams.toString());
+  // URL state update helper that preserves scroll position and prevents page reloading
+  const updateUrl = (updates: Record<string, string | number | undefined | null>) => {
+    const next = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.search : searchParams.toString()
+    );
     for (const [key, val] of Object.entries(updates)) {
       if (val === undefined || val === null || val === "" || val === "ALL") {
         next.delete(key);
@@ -56,19 +74,28 @@ function StockMovementsContent() {
         next.set(key, String(val));
       }
     }
-    router.replace(`/stock/movements?${next.toString()}`);
+    const query = next.toString();
+    const targetUrl = query ? `/stock/movements?${query}` : `/stock/movements`;
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", targetUrl);
+    }
   };
 
   const handlePageChange = (newPage: number) => {
-    updateParams({ page: newPage });
+    setPage(newPage);
+    updateUrl({ page: newPage });
   };
 
   const handleTypeFilterChange = (newType: MovementType | "ALL") => {
-    updateParams({ type: newType, page: 1 });
+    setTypeFilter(newType);
+    setPage(1);
+    updateUrl({ type: newType, page: 1 });
   };
 
   const handleProductFilterChange = (newProductId: string) => {
-    updateParams({ productId: newProductId, page: 1 });
+    setProductFilter(newProductId);
+    setPage(1);
+    updateUrl({ productId: newProductId, page: 1 });
   };
 
   const handleMovementRecorded = () => {
@@ -77,7 +104,7 @@ function StockMovementsContent() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-150">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -140,9 +167,9 @@ function StockMovementsContent() {
         totalPages={totalPages}
         totalRecords={totalRecords}
         onPageChange={handlePageChange}
-        typeFilter={typeParam}
+        typeFilter={typeFilter}
         onTypeFilterChange={handleTypeFilterChange}
-        productFilter={productParam}
+        productFilter={productFilter}
         onProductFilterChange={handleProductFilterChange}
       />
     </div>
