@@ -248,3 +248,106 @@ All endpoints are prefixed with `/api/v1` and protected by `JwtAuthGuard` and `R
 4. **Global Tunables**: Lead time (`LEAD_TIME_DAYS`) and safety buffer (`SAFETY_BUFFER`) are configured globally rather than per supplier or SKU.
 5. **Single Supplier Association**: Each product is mapped to a single primary supplier.
 6. **Single Expiry Field**: Products track a single upcoming expiration date rather than multi-batch lot tracking.
+
+---
+
+## 9. Frontend Web Application (Next.js 16)
+
+The frontend is a responsive, accessible single-page application built with **Next.js 16 App Router**, **Tailwind CSS v4**, **TanStack Query v5**, **React Hook Form**, **Zod**, and **Radix UI primitives**. It strictly implements the visual reference design system, featuring a dark slate (`#020617` / `#0F172A`) and rich teal (`#0D9488` / `#2DD4BF`) theme palette.
+
+### Quickstart & Setup
+
+1. **Install dependencies:**
+   ```bash
+   cd web
+   npm install
+   ```
+
+2. **Configure environment variables:**
+   ```bash
+   cp .env.example .env.local
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   Web App URL: `http://localhost:3000`
+
+4. **Run TypeScript checks and production build:**
+   ```bash
+   npm run lint
+   npm run build
+   ```
+
+5. **Run frontend unit tests:**
+   ```bash
+   npm test
+   ```
+
+### Frontend Environment Variables (`web/.env.example`)
+
+| Variable | Purpose | Default |
+| :--- | :--- | :--- |
+| `API_BASE_URL` | Backend URL used by the server-side API proxy | `http://localhost:4000` |
+| `NEXT_PUBLIC_APP_NAME` | Application title displayed across headers and metadata | `ShelfSense` |
+| `NEXT_PUBLIC_CURRENCY` | Currency code used by browser locale currency formatters | `USD` |
+| `NEXT_PUBLIC_SHOW_DEMO_LOGIN` | Toggles the fast-access one-click credentials on the login screen | `true` |
+
+### Demo Credentials & Role Simulation
+
+Fast access buttons on `/login` allow instant authentication:
+- **Owner**: `owner@shelfsense.local` / `password123` (Full catalog, supplier management, purchase orders, restocking, and forecast PO draft creation).
+- **Staff**: `staff@shelfsense.local` / `password123` (Sale stock movement logging, catalog viewing, alert monitoring).
+- **Floating Dev Toolbar**: Located in the bottom-left corner of authenticated views, enabling instant toggling between Owner and Staff perspectives without re-authenticating.
+
+### Key Architecture Decisions
+
+1. **Token Isolation & Session Security**:
+   - Client-side JavaScript **never** touches or stores the raw JWT access token in `localStorage` or memory.
+   - All authentication routes through `web/app/api/auth/login`, which sets a secure `httpOnly`, `SameSite=Lax` cookie.
+   - The server-side proxy (`web/app/api/proxy/[...path]`) reads the cookie on each outbound request, attaching `Authorization: Bearer <token>` to the NestJS backend on port 4000.
+
+2. **Data Layer & Query Cache Invalidation**:
+   - All data fetching uses TanStack Query (`@tanstack/react-query`) wrapped around a typed `apiClient`.
+   - Centralized query keys in `web/lib/query-keys.ts`.
+   - Mutations strictly trigger deterministic cache invalidations:
+     - Recording a stock movement invalidates `stock`, `products`, `alerts`, and `dashboard`.
+     - Transitioning or receiving a PO invalidates `purchase-orders`, `products`, `stock`, and `alerts`.
+     - Creating/updating products invalidates `products` and `alerts`.
+
+3. **The Four Explicit States Rule**:
+   - Every table, card, and data-fetching component implements four distinct states:
+     1. **Loading**: Structural skeletons mimicking the final layout (never generic screen spinners).
+     2. **Empty**: Contextual explanation and a clear call-to-action button.
+     3. **Error**: User-friendly error message with an actionable "Retry" button.
+     4. **Success**: Rendered data with pagination and search filtering.
+
+4. **URL-Driven State**:
+   - Search queries, category filters, stock status tabs, pagination pages, and selected purchase order IDs synchronize directly with browser URL parameters (`useSearchParams`).
+   - Users can share or bookmark filtered catalog views and order records.
+
+5. **Design Tokens & Dark Mode Fidelity**:
+   - Styled using Tailwind CSS v4 with an `@theme` block in `web/app/globals.css`.
+   - Zero hardcoded hex codes. All colors map to CSS variable design tokens (`bg-background`, `bg-card`, `border-border`, `text-foreground`, `text-primary`, status colors).
+   - Full dark and light theme support powered by `next-themes` and a header theme toggle.
+
+6. **Zero Business Rules in the UI**:
+   - The backend remains the sole authority for stock balances, idempotency, and workflow transitions.
+   - The UI uses pure presentational role helpers (`can(user, 'action')`) solely for ergonomic display decisions.
+
+### Route Map
+
+- `/login` — Centered login portal with fast-fill demo credentials.
+- `/` (Dashboard) — Operational KPIs, 30-day sales trend chart, recent movements ledger, and 3-column alert triage panels.
+- `/products` — Full inventory catalog with search, category filters, stock pills, and create/edit slide-over sheets.
+- `/suppliers` — Supplier directory with product counts, contact details, and supplier modal.
+- `/stock/movements` — Stock movement recording (Sale, Stock In, Adjustment) with live balance preview and audit history table with CSV export.
+- `/purchase-orders` — Owner restock pipeline with status tabs, supplier-filtered creation modal, and 3-step status stepper (`DRAFT` → `ORDERED` → `RECEIVED`).
+- `/forecast` — Restock intelligence engine with strategy switcher, rolling window controls, transparent mathematical formula breakdown, and one-click draft PO creation.
+
+### Frontend Known Limitations
+
+1. **Proxy Session Validation**: The Next.js edge proxy checks for session cookie presence; all authorization and token validity checks are authoritative on the NestJS backend.
+2. **Polling vs. WebSockets**: Data refreshes automatically on navigation and after mutations. Real-time push updates via WebSockets are not enabled.
+3. **Single Currency**: Currency formatting utilizes `NEXT_PUBLIC_CURRENCY` (USD default) across all screens.
