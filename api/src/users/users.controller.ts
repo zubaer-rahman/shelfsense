@@ -24,6 +24,7 @@ export class UsersController {
   @ApiOperation({ summary: "Register a new user account (OWNER only)" })
   @ApiResponse({ status: 201, description: "User registered successfully" })
   @ApiResponse({ status: 409, description: "Email already in use" })
+  @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
     return {

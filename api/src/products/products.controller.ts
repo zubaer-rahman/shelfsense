@@ -35,6 +35,7 @@ export class ProductsController {
   @ApiOperation({ summary: "Create a new product in the catalog (OWNER only)" })
   @ApiResponse({ status: 201, description: "Product created successfully" })
   @ApiResponse({ status: 409, description: "SKU already exists" })
+  @Post()
   @Roles(Role.OWNER)
   async create(@Body() createProductDto: CreateProductDto) {
     const product = await this.productsService.create(createProductDto);

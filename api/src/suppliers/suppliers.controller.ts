@@ -34,6 +34,7 @@ export class SuppliersController {
 
   @ApiOperation({ summary: "Register a new supplier (OWNER only)" })
   @ApiResponse({ status: 201, description: "Supplier registered successfully" })
+  @Post()
   @Roles(Role.OWNER)
   async create(@Body() createSupplierDto: CreateSupplierDto) {
     const supplier = await this.suppliersService.create(createSupplierDto);
